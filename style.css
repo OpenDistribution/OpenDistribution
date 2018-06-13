@@ -1,0 +1,108 @@
+#tabs, .tabBody, #librarySidebar, #libraryMain
+{
+	border:solid black 1px;
+}
+
+#tabBodyLibrary
+{
+	border:solid black 0px;
+}
+
+#tabs
+{
+	font-size:2em;
+	font-weight:bold;
+	box-sizing:border-box;
+	position:absolute;
+	top:0px;
+	height:48px;
+	left:0px;
+	right:0px;
+	padding-top:4px;
+	padding-left:16px;
+	user-select:none;
+}
+
+.tabBody
+{
+	box-sizing:border-box;
+	position:absolute;
+	top:48px;
+	bottom:0px;
+	left:0px;
+	right:0px;
+	padding:16px;
+}
+
+.activeTab, .activeGameEntry
+{
+	text-decoration: underline;
+}
+
+#librarySidebar
+{
+	box-sizing:border-box;
+	position:absolute;
+	top:0px;
+	bottom:0px;
+	left:0px;
+	width:256px;
+	overflow-y:scroll;
+	cursor:default;
+	user-select:none;
+}
+
+#libraryMain
+{
+	box-sizing:border-box;
+	position:absolute;
+	top:0px;
+	bottom:0px;
+	left:256px;
+	right:0px;
+	padding:16px;
+	overflow-y:auto;
+}
+
+h1
+{
+	margin-top:0px;
+}
+
+.tab, #tabs
+{
+	cursor:default;
+}
+
+#librarySidebar li
+{
+	font-weight:bold;
+	list-style-type:none;
+	padding:0px 16px;
+}
+
+#librarySidebar ul
+{
+	margin:16px 0px;
+	padding:0px;
+}
+
+#librarySidebar li:hover
+{
+	background-color:lightgray;
+}
+
+li.activeGameEntry, #librarySidebar li.activeGameEntry:hover
+{
+	background-color:lightblue;
+}
+
+.tab:hover
+{
+	background-color:lightgray;
+}
+
+.activeTab.tab:hover, .activeTab.tab
+{
+	background-color:lightblue;
+}

@@ -1,0 +1,36 @@
+{
+	"name": "OpenDistribution",
+	"description": "Capstone Project for Group 1",
+	"author": {
+		"name": "Walter Barrett",
+		"email": "walter.barrett@mga.edu",
+		"url": "https://github.com/WalterBarrett/"
+	},
+	"contributors": [
+		{
+			"name": "Daniel Holton",
+			"url": "https://github.com/danielholton"
+		},
+		{
+			"name": "Patrick Raley",
+			"url": "https://github.com/PatrickRaley"
+		},
+		{
+			"name": "James Thomas"
+		},
+		{
+			"name": "Kent White",
+			"url": "https://github.com/KentCHWhite"
+		}
+	],
+	"license": "BSD-3-Clause",
+	"private": true,
+	"version": "0.1.0",
+	"devDependencies": {
+		"electron": "^2.0.2"
+	},
+	"main": "main.js",
+	"scripts": {
+		"start": "electron ."
+	}
+}

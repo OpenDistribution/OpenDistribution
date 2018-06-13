@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>OpenDistribution</title>
+		<script src="render.js"></script>
+		<link rel="stylesheet" type="text/css" href="style.css">
+	</head>
+	<body>
+		<div id="tabs">
+			<a class="tab" id="tabLibrary" onclick="openTab('Library')">Library</a>
+			<a class="tab" id="tabSettings" onclick="openTab('Settings')">Settings</a>
+			<a class="tab" id="tabAbout" onclick="openTab('About')">About</a>
+		</div>
+		<div class="tabBody" id="tabBodyLibrary">
+			<div id="librarySidebar">
+				<ul id="gamesList"></ul>
+			</div>
+			<div id="libraryMain">
+				<h1 id="gameInfoName">Game Name</h1>
+				<p>Info about game goes here.</p>
+				<div id="gameInfoScreenshots"></div>
+			</div>
+		</div>
+		<div class="tabBody" id="tabBodySettings">
+			<p>Default tab setting goes here.</p>
+			<p>Repo settings go here.</p>
+			<ul>
+				<li>Maximize window on open.</li>
+				<li>Start program in tray.</li>
+				<li>Close to tray.</li>
+			</ul>
+		</div>
+		<div class="tabBody" id="tabBodyAbout">
+			<h1>OpenDistribution</h1>
+			<p>Uninitialized.</p>
+		</div>
+		<script>onLoad();</script>
+	</body>
+</html>
