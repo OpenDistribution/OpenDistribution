@@ -23,8 +23,12 @@
 			"url": "https://github.com/KentCHWhite"
 		}
 	],
+	"homepage": "https://github.com/OpenDistribution/OpenDistribution",
+	"bugs": {
+		"url": "https://github.com/OpenDistribution/OpenDistribution/issues"
+	},
+	"repository": "github:OpenDistribution/OpenDistribution",
 	"license": "BSD-3-Clause",
-	"private": true,
 	"version": "0.1.0",
 	"devDependencies": {
 		"electron": "^2.0.2"
