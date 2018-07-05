@@ -150,5 +150,11 @@ ipcRenderer.on('update-about', (event, message) =>
 		<li>node ${process.versions.node}</li>
 		<li>Chrome ${process.versions.chrome}</li>
 		<li>Electron ${process.versions.electron}</li>
+	</ul>
+	
+	<h2>Contribute</h2>
+	<ul>
+		<li><a href="${message.homepage}" target="_blank">View project on Github.</a></li>
+		<li><a href="${message.bugs.url}" target="_blank">Post a new issue.</a></li>
 	</ul>`;
 });
