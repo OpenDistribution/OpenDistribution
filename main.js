@@ -266,7 +266,30 @@ function handleGamedef(filePath)
 			if (body != null && body != '')
 			{
 				//gameLibrary.set(gameJSON.id, JSON.parse(body));
-				win.webContents.send("games-list-addition", JSON.parse(body));
+				
+				let passedData = JSON.parse(body);
+				let gameId = passedData.id;
+				if (passedData.hasOwnProperty("version"))
+				{
+					let latestVersion = passedData.version;
+					delete passedData["version"];
+					passedData["latestVersion"] = latestVersion;
+					
+					if (libraryStore.has(gameId))
+					{
+						if (libraryStore.has(`${gameId}.Installed`))
+						{
+							passedData["installed"] = true;
+						
+						if (libraryStore.get(`${gameId}.Installed`) == true && libraryStore.has(`${gameId}.Version`))
+						{
+							passedData["installedVersion"] = libraryStore.get(`${gameId}.Version`);
+						}
+						}
+					}
+				}
+				
+				win.webContents.send("games-list-addition", passedData);
 			}
 		});
 		response.on('error', (error) =>
@@ -349,7 +372,8 @@ function GetBaseDir(filePath)
 ipcMain.on('download-file', function (event, gameId, downloadUrl, version)
 {
 	console.log(`download-file: ${gameId}, ${downloadUrl}`);
-	libraryStore.set(gameId, { "Installed": false, "Downloaded": false });
+	libraryStore.set(`${gameId}.Installed`, false);
+	libraryStore.set(`${gameId}.Downloaded`, false);
 	
 	if (!fs.existsSync(GetBaseDir("/Downloads")))
 	{
@@ -368,7 +392,9 @@ ipcMain.on('download-file', function (event, gameId, downloadUrl, version)
 	
 	downloadFile(downloadUrl, GetBaseDir(`/Downloads/${gameId}.ZIP`), function()
 	{
-		libraryStore.set(gameId, { "Installed": false, "Downloaded": true, "Version" : version });
+		libraryStore.set(`${gameId}.Installed`, false);
+		libraryStore.set(`${gameId}.Downloaded`, true);
+		libraryStore.set(`${gameId}.Version`, version);
 		console.log("Finished downloading the file!");
 		console.log("Start extract.");
 		
@@ -394,7 +420,9 @@ ipcMain.on('download-file', function (event, gameId, downloadUrl, version)
 					console.log(`Extracted and deleted ${tempDownloadLocation}.`);
 				}
 			});
-			libraryStore.set(gameId, { "Installed": true, "Downloaded": false, "Version" : version });
+			libraryStore.set(`${gameId}.Installed`, true);
+			libraryStore.set(`${gameId}.Downloaded`, false);
+			libraryStore.set(`${gameId}.Version`, version);
 			console.log(`End extract: ${log}`);
 		});
 
@@ -422,4 +450,14 @@ ipcMain.on('request-view', function (event)
 ipcMain.on('updated-view', function (event, message)
 {
 	settingsStore.set("lastView", message);
+});
+
+ipcMain.on('play-game', function (event, gameId)
+{
+	console.log("Received unimplemented \"play-game\" event!");
+});
+
+ipcMain.on('update-game', function (event, gameId)
+{
+	console.log("Received unimplemented \"update-game\" event!");
 });

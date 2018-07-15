@@ -18,18 +18,59 @@
 			</div>
 			<div id="libraryMain">
 				<h1 id="gameInfoName">Game Name</h1>
-				<a id="gameDownloadButton">Download</a>
+				<a id="gameDownloadButton" class="neobutton">Download</a>
 				<p>Info about game goes here.</p>
 				<div id="gameInfoScreenshots"></div>
 			</div>
 		</div>
 		<div class="tabBody" id="tabBodySettings">
-			<p>Default tab setting goes here.</p>
-			<p>Repo settings go here.</p>
+			<h2>Interface:</h2>
 			<ul>
-				<li>Maximize window on open.</li>
-				<li>Start program in tray.</li>
-				<li>Close to tray.</li>
+				<li>
+					<input type="checkbox" id="startMaximized" name="startMaximized" value="true" checked />
+					<label for="startMaximized">Start maximized.</label>
+				</li>
+				<li>
+					<input type="checkbox" id="closeToTray" name="closeToTray" value="true" checked />
+					<label for="closeToTray">Close to system tray.</label>
+				</li>
+			</ul>
+			<h2>Updates:</h2>
+			<ul>
+				<li>
+					<input type="checkbox" id="autoUpdate" name="autoUpdate" value="true" checked />
+					<label for="autoUpdate">Enable auto-updating games.</label>
+				</li>
+			</ul>
+			<h2>Default tab:</h2>
+			<ul>
+				<li>
+					<input type="radio" id="settingDefaultTabLast" name="settingDefaultTab" checked />
+					<label for="settingDefaultTabLast">Most Recent Tab</label>
+				</li>
+				<li>
+					<input type="radio" id="settingDefaultTabLibrary" name="settingDefaultTab" />
+					<label for="settingDefaultTabLibrary">Library</label>
+				</li>
+				<li>
+					<input type="radio" id="settingDefaultTabSettings" name="settingDefaultTab" />
+					<label for="settingDefaultTabSettings">Settings</label>
+				</li>
+				<li>
+					<input type="radio" id="settingDefaultTabAbout" name="settingDefaultTab" />
+					<label for="settingDefaultTabAbout">About</label>
+				</li>
+			</ul>
+			<!--
+			<h2>Game Sources:</h2>
+			<p>Repo settings go here.</p>
+			-->
+			<h2>Debugging:</h2>
+			<ul>
+				<li>
+					<input type="checkbox" id="enableDeveloperTools" name="enableDeveloperTools" value="true" />
+					<label for="enableDeveloperTools">Enable Developer Tools pane.</label>
+				</li>
 			</ul>
 		</div>
 		<div class="tabBody" id="tabBodyAbout">

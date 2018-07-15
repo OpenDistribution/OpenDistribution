@@ -64,7 +64,7 @@
 	overflow-y:auto;
 }
 
-h1
+h1, h2
 {
 	margin-top:0px;
 }
@@ -97,12 +97,12 @@ li.activeGameEntry, #librarySidebar li.activeGameEntry:hover
 	background-color:lightblue;
 }
 
-.tab:hover
+.tab:hover, .neobutton
 {
 	background-color:lightgray;
 }
 
-.activeTab.tab:hover, .activeTab.tab
+.activeTab.tab:hover, .activeTab.tab, .neobutton:hover
 {
 	background-color:lightblue;
 }
@@ -110,4 +110,34 @@ li.activeGameEntry, #librarySidebar li.activeGameEntry:hover
 #tabBodySettings, #tabBodyAbout
 {
 	overflow-y:scroll;
+}
+
+#tabBodySettings ul
+{
+	list-style-type: none;
+	padding-left:0.8em;
+	margin-top:0.0em;
+}
+
+.neobutton
+{
+	padding:4px;
+	cursor:default;
+	user-select:none;
+}
+
+.neobutton.na, .neobutton.na:hover
+{
+	cursor:not-allowed;
+	background-color:darkgray;
+}
+
+.neobutton.inprogress
+{
+	cursor:wait;
+}
+
+h2
+{
+	margin-bottom:0px;
 }
