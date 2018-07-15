@@ -28,17 +28,16 @@ function openTab(tabName)
 	tabBody.style.display = 'block';
 	let tab = document.getElementById('tab'+tabName);
 	tab.classList.add("activeTab");
+	ipcRenderer.send("updated-view", tabName);
 }
 
 function onLoad()
 {
-	openTab('Library');
+	ipcRenderer.send("request-view");
 }
 
-function selectGameInLibrary(gameId)
+function softSelectGameInLibrary(gameId)
 {
-	openTab('Library');
-	
 	selectedGameId = gameId;
 	let selectedGame = gameLibrary.get(gameId);
 	
@@ -84,6 +83,13 @@ function selectGameInLibrary(gameId)
 	}
 }
 
+function selectGameInLibrary(gameId)
+{
+	openTab('Library');
+	
+	softSelectGameInLibrary(gameId);
+}
+
 ipcRenderer.on('games-list-refreshing', (event, message) =>
 {
 	console.log('games-list-refreshing');
@@ -116,7 +122,7 @@ ipcRenderer.on('games-list-addition', (event, message) =>
 	
 	if (selectedGameId === null)
 	{
-		selectGameInLibrary(gameJSON.id);
+		softSelectGameInLibrary(gameJSON.id);
 	}
 });
 

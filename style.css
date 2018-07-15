@@ -106,3 +106,8 @@ li.activeGameEntry, #librarySidebar li.activeGameEntry:hover
 {
 	background-color:lightblue;
 }
+
+#tabBodySettings, #tabBodyAbout
+{
+	overflow-y:scroll;
+}
