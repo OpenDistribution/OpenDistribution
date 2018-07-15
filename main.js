@@ -1,11 +1,36 @@
-const {app, net, path, shell, BrowserWindow, Tray, Menu} = require('electron');
+const {app, net, path, shell, BrowserWindow, ipcMain, Tray, Menu} = require('electron');
 let fs = require('fs');
+let http = require('http');
+let request = require('request');
+let progress = require('request-progress');
 let packageJson = require('./package.json');
+let DecompressZip = require('decompress-zip');
 
 let ICON_PATH = './icon.png';
 
 let win = null; // This needs to be global, or it'll be garbage collected.
 let trayIcon = null;
+
+let libraryInfo = {};
+
+function loadSettings()
+{
+	
+}
+
+function downloadFile(source, destination, callback)
+{
+	let p = progress(request(source), {});
+	p.on('progress', function (state)
+	{
+		console.log('progress', state);
+	});
+	p.on('error', function (err)
+	{
+		console.log('error', err);
+	});
+	p.on('end', callback).pipe(fs.createWriteStream(destination));
+};
 
 function createWindow()
 {
@@ -23,6 +48,8 @@ function createWindow()
 		win = null; // Garbage collect it.
 	});
 	
+	loadSettings();
+	
 	win.webContents.on('did-finish-load', () =>
 	{
 		win.webContents.send("update-about", packageJson);
@@ -31,7 +58,7 @@ function createWindow()
 	
 	win.on('close', function(event)
 	{
-		if(!app.isQuiting)
+		if (!app.isQuiting)
 		{
 			event.preventDefault();
 			win.hide();
@@ -233,6 +260,7 @@ function handleGamedef(filePath)
 			
 			if (body != null && body != '')
 			{
+				//gameLibrary.set(gameJSON.id, JSON.parse(body));
 				win.webContents.send("games-list-addition", JSON.parse(body));
 			}
 		});
@@ -288,7 +316,7 @@ function handleGamelist(filePath)
 			console.log(`ERROR: ${JSON.stringify(error)}`);
 			console.log("==]");
 		});
-	})
+	});
 	request.end();
 }
 
@@ -306,9 +334,54 @@ function refreshLibrary()
 			handleGamelist(gamelists[j]);
 		}
 	}
-	
-	/*newList.sort(function(a, b)
-	{
-		return a.name.localeCompare(b.name);
-	});*/
 }
+
+function GetBaseDir()
+{
+	return app.getPath('userData');
+}
+
+ipcMain.on('download-file', function (event, gameId, downloadUrl)
+{
+	console.log(`download-file: ${gameId}, ${downloadUrl}`);
+	
+	if (!fs.existsSync(GetBaseDir() + "/Downloads"))
+	{
+		fs.mkdirSync(GetBaseDir() + "/Downloads");
+	}
+	
+	if (!fs.existsSync(GetBaseDir() + "/Games"))
+	{
+		fs.mkdirSync(GetBaseDir() + "/Games");
+	}
+	
+	if (!fs.existsSync(GetBaseDir() + `/Games/${gameId}`))
+	{
+		fs.mkdirSync(GetBaseDir() + `/Games/${gameId}`);
+	}
+	
+	downloadFile(downloadUrl, GetBaseDir() + `/Downloads/${gameId}.ZIP`, function()
+	{
+		console.log("Finished downloading the file!");
+		console.log("Start extract.");
+		
+		console.log("Should write to: " + GetBaseDir() + `/Games/${gameId}`);
+
+		let unzipper = new DecompressZip(GetBaseDir() + `/Downloads/${gameId}.ZIP`);
+		unzipper.on('error', function (err) {
+			console.log('Error: ', err);
+		});
+
+		unzipper.on('extract', function (log) {
+			console.log('End extract: ', log);
+		});
+
+		unzipper.on('progress', function (fileIndex, fileCount) {
+			console.log(`Progress: Extracted ${fileIndex + 1}/${fileCount}.`);
+		});
+
+		unzipper.extract({
+			path: GetBaseDir() + `/Games/${gameId}`
+		});
+	});
+});

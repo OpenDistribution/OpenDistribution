@@ -29,12 +29,18 @@
 	},
 	"repository": "github:OpenDistribution/OpenDistribution",
 	"license": "BSD-3-Clause",
-	"version": "0.1.0",
+	"version": "0.2.0",
 	"devDependencies": {
 		"electron": "^2.0.2"
 	},
 	"main": "main.js",
 	"scripts": {
 		"start": "electron ."
+	},
+	"dependencies": {
+		"decompress-zip": "^0.3.1",
+		"request": "^2.87.0",
+		"request-progress": "^3.0.0",
+		"update": "^0.7.4"
 	}
 }

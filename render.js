@@ -54,6 +54,23 @@ function selectGameInLibrary(gameId)
 	let gameInfoName = document.getElementById('gameInfoName');
 	gameInfoName.innerHTML = selectedGame.name;
 	
+	let gameDownload = document.getElementById('gameDownloadButton');
+	if (selectedGame.download !== null && selectedGame.download !== undefined)
+	{
+		gameDownload.innerHTML = "Download"
+		gameDownload.onclick = function()
+		{
+			console.log("download-file");
+			ipcRenderer.send("download-file", gameId, selectedGame.download);
+		};
+	}
+	else
+	{
+		gameDownload.innerHTML = "No Download"
+		gameDownload.onclick = function()
+		{};
+	}
+	
 	let gameInfoScreenshots = document.getElementById('gameInfoScreenshots');
 	gameInfoScreenshots.innerHTML = "";
 	if (selectedGame.screenshots !== null && selectedGame.screenshots !== undefined)
@@ -92,7 +109,7 @@ ipcRenderer.on('games-list-addition', (event, message) =>
 	let gameEntry = document.createElement('li');
 	gameEntry.appendChild(document.createTextNode(gameJSON.name));
 	gamesList.appendChild(gameEntry);
-	gameEntry.setAttribute("onclick", "selectGameInLibrary('"+gameJSON.id+"');");
+	gameEntry.onclick = function() { selectGameInLibrary(gameJSON.id); };
 	gameEntry.setAttribute("id", "gameEntry"+gameJSON.id);
 	
 	gameLibrary.set(gameJSON.id, gameJSON);
