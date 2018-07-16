@@ -72,7 +72,7 @@ function softSelectGameInLibrary(gameId)
 		}
 		else
 		{
-			gameDownload.innerHTML = "Play";
+			gameDownload.innerHTML = "&#x25B6; Play";
 			gameDownload.onclick = function()
 			{
 				console.log("play-game");
@@ -95,10 +95,17 @@ function softSelectGameInLibrary(gameId)
 		}
 		else
 		{
-			gameDownload.innerHTML = "No Download Available";
+			gameDownload.innerHTML = "Download Unavailable";
 			gameDownload.classList.add('na');
 			gameDownload.onclick = function() {};
 		}
+	}
+	
+	let gameDescription = document.getElementById('gameDescription');
+	gameDescription.innerHTML = "";
+	if (selectedGame.description !== null && selectedGame.description !== undefined)
+	{
+		gameDescription.innerHTML = selectedGame.description;
 	}
 	
 	let gameInfoScreenshots = document.getElementById('gameInfoScreenshots');
@@ -202,7 +209,7 @@ ipcRenderer.on('update-about', (event, message) =>
 	<h2>Using</h2>
 	<ul>
 		<li>node ${process.versions.node}</li>
-		<li>Chrome ${process.versions.chrome}</li>
+		<li>Chromium ${process.versions.chrome}</li>
 		<li>Electron ${process.versions.electron}</li>
 	</ul>
 	
@@ -212,3 +219,16 @@ ipcRenderer.on('update-about', (event, message) =>
 		<li><a href="${message.bugs.url}" target="_blank">Post a new issue.</a></li>
 	</ul>`;
 });
+
+function InputChange(srcInput)
+{
+	if (srcInput.type == "radio")
+	{
+		console.log(`${srcInput.name} = ${srcInput.value}`);
+	}
+	else if (srcInput.type == "checkbox")
+	{
+		console.log(`${srcInput.name} = ${srcInput.checked}`);
+	}
+	console.log(srcInput);
+}

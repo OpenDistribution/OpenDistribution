@@ -44,9 +44,16 @@ function createWindow()
 	win = new BrowserWindow({
 		width: 800,
 		height: 600,
+		minHeight: 400,
+		minWidth: 400,
 		title: packageJson.name,
 		icon:ICON_PATH
 	});
+	
+	if (!(settingsStore.has("StartMaximized") && settingsStore.get("StartMaximized") == false))
+	{
+		win.maximize();
+	}
 	
 	win.loadFile('index.html');
 	win.webContents.openDevTools();

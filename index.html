@@ -17,47 +17,83 @@
 				<ul id="gamesList"></ul>
 			</div>
 			<div id="libraryMain">
-				<h1 id="gameInfoName">Game Name</h1>
-				<a id="gameDownloadButton" class="neobutton">Download</a>
-				<p>Info about game goes here.</p>
-				<div id="gameInfoScreenshots"></div>
+				<div class="libraryMainWrapper">
+					<h1 id="gameInfoName">Game Name</h1>
+				</div>
+				<div id="gameButtonBar">
+					<span id="gameButtonBarLeft">
+						<a id="gameDownloadButton" class="neobutton">Download</a>
+					</span>
+					<span id="gameButtonBarRight">
+						<a id="gameOptionsButton" class="neobutton">Options</a>
+					</span>
+				</div>
+				<div id="gameLinksBar">
+					<span id="gameLinksBarCenter">
+						<a id="gameWebsiteButton" class="neobutton">Website</a>
+						<a id="gameCommunityButton" class="neobutton">Community</a>
+						<a id="gameSourceCodeButton" class="neobutton">Source</a>
+						<a id="gameDonateButton" class="neobutton">Donate</a>
+					</span>
+				</div>
+				<div class="libraryMainWrapper">
+					<div id="gameDescription">No description available.</div>
+					<div id="gameInfoScreenshots"></div>
+				</div>
+				<div id="gameWindowBackdrop" class="backdrop">
+					<div id="gameLaunchWindow" class="gameWindow">
+						<div class="gameWindowExitButton neobutton">&times;</div>
+						<h1>Launch Game</a>
+						<a class="neobutton">Launch Option 1 Placeholder</a>
+						<a class="neobutton">Launch Option 2 Placeholder</a>
+					</div>
+					<div id="gameOptionsWindow" class="gameWindow">
+						<div class="gameWindowExitButton neobutton">&times;</div>
+						<h1>Options</h1>
+						<ul>
+							<li><a id="gameUninstallButton" class="neobutton">Uninstall</a></li>
+							<li><a id="gameOpenDirectoryButton" class="neobutton">Open Game Directory</a></li>
+							<li><a id="gameCreateShortcutButton" class="neobutton">Create Desktop Shortcut</a></li>
+						</ul>
+					</div>
+				</div>
 			</div>
 		</div>
 		<div class="tabBody" id="tabBodySettings">
 			<h2>Interface:</h2>
 			<ul>
 				<li>
-					<input type="checkbox" id="startMaximized" name="startMaximized" value="true" checked />
-					<label for="startMaximized">Start maximized.</label>
+					<input onchange="InputChange(this)" type="checkbox" id="settingStartMaximized" name="StartMaximized" value="true" />
+					<label for="settingStartMaximized">Start maximized.</label>
 				</li>
 				<li>
-					<input type="checkbox" id="closeToTray" name="closeToTray" value="true" checked />
-					<label for="closeToTray">Close to system tray.</label>
+					<input onchange="InputChange(this)" type="checkbox" id="settingCloseToTray" name="CloseToTray" value="true" />
+					<label for="settingCloseToTray">Close to system tray.</label>
 				</li>
 			</ul>
 			<h2>Updates:</h2>
 			<ul>
 				<li>
-					<input type="checkbox" id="autoUpdate" name="autoUpdate" value="true" checked />
-					<label for="autoUpdate">Enable auto-updating games.</label>
+					<input onchange="InputChange(this)" type="checkbox" id="settingAutoUpdate" name="AutoUpdateGames" value="true" />
+					<label for="settingAutoUpdate">Enable auto-updating games.</label>
 				</li>
 			</ul>
 			<h2>Default tab:</h2>
 			<ul>
 				<li>
-					<input type="radio" id="settingDefaultTabLast" name="settingDefaultTab" checked />
+					<input onchange="InputChange(this)" type="radio" id="settingDefaultTabLast" name="DefaultTab" value="Last" />
 					<label for="settingDefaultTabLast">Most Recent Tab</label>
 				</li>
 				<li>
-					<input type="radio" id="settingDefaultTabLibrary" name="settingDefaultTab" />
+					<input onchange="InputChange(this)" type="radio" id="settingDefaultTabLibrary" name="DefaultTab" value="Library" />
 					<label for="settingDefaultTabLibrary">Library</label>
 				</li>
 				<li>
-					<input type="radio" id="settingDefaultTabSettings" name="settingDefaultTab" />
+					<input onchange="InputChange(this)" type="radio" id="settingDefaultTabSettings" name="DefaultTab" value="Settings" />
 					<label for="settingDefaultTabSettings">Settings</label>
 				</li>
 				<li>
-					<input type="radio" id="settingDefaultTabAbout" name="settingDefaultTab" />
+					<input onchange="InputChange(this)" type="radio" id="settingDefaultTabAbout" name="DefaultTab" value="About" />
 					<label for="settingDefaultTabAbout">About</label>
 				</li>
 			</ul>
@@ -68,8 +104,8 @@
 			<h2>Debugging:</h2>
 			<ul>
 				<li>
-					<input type="checkbox" id="enableDeveloperTools" name="enableDeveloperTools" value="true" />
-					<label for="enableDeveloperTools">Enable Developer Tools pane.</label>
+					<input onchange="InputChange(this)" type="checkbox" id="settingEnableDeveloperTools" name="enableDeveloperTools" value="true" />
+					<label for="settingEnableDeveloperTools">Enable Developer Tools pane.</label>
 				</li>
 			</ul>
 		</div>

@@ -10,16 +10,11 @@
 
 #tabs
 {
-	font-size:2em;
 	font-weight:bold;
-	box-sizing:border-box;
 	position:absolute;
 	top:0px;
-	height:48px;
 	left:0px;
 	right:0px;
-	padding-top:4px;
-	padding-left:16px;
 	user-select:none;
 }
 
@@ -27,7 +22,6 @@
 {
 	box-sizing:border-box;
 	position:absolute;
-	top:48px;
 	bottom:0px;
 	left:0px;
 	right:0px;
@@ -36,7 +30,7 @@
 
 .activeTab, .activeGameEntry
 {
-	text-decoration: underline;
+	text-decoration:underline;
 }
 
 #librarySidebar
@@ -46,7 +40,6 @@
 	top:0px;
 	bottom:0px;
 	left:0px;
-	width:256px;
 	overflow-y:scroll;
 	cursor:default;
 	user-select:none;
@@ -60,13 +53,13 @@
 	bottom:0px;
 	left:256px;
 	right:0px;
-	padding:16px;
-	overflow-y:auto;
+	overflow-y:scroll;
 }
 
 h1, h2
 {
 	margin-top:0px;
+	margin-bottom:0px;
 }
 
 .tab, #tabs
@@ -78,12 +71,10 @@ h1, h2
 {
 	font-weight:bold;
 	list-style-type:none;
-	padding:0px 16px;
 }
 
 #librarySidebar ul
 {
-	margin:16px 0px;
 	padding:0px;
 }
 
@@ -112,6 +103,12 @@ li.activeGameEntry, #librarySidebar li.activeGameEntry:hover
 	overflow-y:scroll;
 }
 
+#tabBodyAbout ul
+{
+	margin-top:0.0em;
+	padding-left:1.5em;
+}
+
 #tabBodySettings ul
 {
 	list-style-type: none;
@@ -119,11 +116,25 @@ li.activeGameEntry, #librarySidebar li.activeGameEntry:hover
 	margin-top:0.0em;
 }
 
+.gameWindow ul
+{
+	list-style-type: none;
+	padding-left:0px;
+	margin-top:0px;
+}
+
 .neobutton
 {
+	display:inline-block;
 	padding:4px;
 	cursor:default;
 	user-select:none;
+	margin-top:4px;
+	margin-bottom:4px;
+	border-radius:4px;
+	border:1px solid black;
+	line-height:18px;
+	height:18px;
 }
 
 .neobutton.na, .neobutton.na:hover
@@ -140,4 +151,228 @@ li.activeGameEntry, #librarySidebar li.activeGameEntry:hover
 h2
 {
 	margin-bottom:0px;
+}
+
+.gameWindow
+{
+	position:fixed;
+	background-color:white;
+	padding:16px;
+	text-align:center;
+	border-radius:32px;
+	border:1px solid black;
+}
+
+.backdrop
+{
+	position:fixed;
+	bottom:0px;
+	right:0px;
+	background-color:rgba(0, 0, 0, 0.5);
+}
+
+.gameWindowExitButton
+{
+	font-weight:bold;
+	width:16px;
+	height:16px;
+	text-align:center;
+	position:absolute;
+	top:24px;
+	right:24px;
+	margin:0px 0px 0px 0px;
+}
+
+#gameWindowBackdrop
+{
+	/*display:none;*/
+}
+
+#gameButtonBar, #gameLinksBar
+{
+	background-color:#EBF5F9;
+}
+
+.libraryMainWrapper
+{
+	width:100%;
+	box-sizing:border-box;
+}
+
+/* Large */
+@media (min-width: 600px)
+{
+	.tabBody
+	{
+		top:48px;
+	}
+
+	#librarySidebar
+	{
+		width:256px;
+	}
+
+	#librarySidebar li
+	{
+		padding:0px 16px;
+	}
+
+	#librarySidebar ul
+	{
+		margin:16px 0px;
+	}
+
+	#libraryMain
+	{
+		left:256px;
+		padding-top:16px;
+		padding-bottom:16px;
+	}
+	
+	#gameButtonBar, #gameLinksBar
+	{
+		padding-left:16px;
+		padding-right:16px;
+	}
+
+	.gameWindow
+	{
+		top:calc(48px + 16px);
+		left:calc(256px + 16px);
+		bottom:16px;
+		right:16px;
+	}
+
+	.backdrop
+	{
+		top:48px;
+		left:256px;
+	}
+
+	#tabs
+	{
+		font-size:2em;
+		height:48px;
+		padding:4px 16px;
+		box-sizing:border-box;
+	}
+	
+	#gameButtonBar
+	{
+		position:relative;
+		height:28px;
+		margin-bottom:4px;
+		padding-top:4px;
+		padding-bottom:4px;
+	}
+
+	#gameButtonBarLeft
+	{
+		position:absolute;
+		top:0px;
+		left:16px;
+		display:block;
+	}
+
+	#gameButtonBarRight
+	{
+		position:absolute;
+		top:0px;
+		right:16px;
+		display:block;
+	}
+
+	#gameLinksBarCenter
+	{
+		display:block;
+		text-align:center;
+		margin-bottom:4px;
+	}
+	
+	.libraryMainWrapper
+	{
+		padding-left:16px;
+		padding-right:16px;
+	}
+}
+
+/* Small */
+@media (max-width: 599px)
+{
+
+	.tabBody
+	{
+		top:24px;
+		padding:8px;
+	}
+
+	#librarySidebar
+	{
+		width:192px;
+	}
+
+	#librarySidebar li
+	{
+		padding:0px 8px;
+	}
+
+	#librarySidebar ul
+	{
+		margin:8px 0px;
+	}
+
+	#libraryMain
+	{
+		padding-top:8px;
+		padding-bottom:8px;
+		left:192px;
+	}
+
+	#gameButtonBar, #gameLinksBar
+	{
+		padding-left:8px;
+		padding-right:8px;
+	}
+
+	.gameWindow
+	{
+		top:calc(24px + 8px);
+		left:calc(192px + 8px);
+		bottom:8px;
+		right:8px;
+	}
+
+	.backdrop
+	{
+		top:24px;
+		left:192px;
+	}
+
+	#tabs
+	{
+		font-size:16px;
+		height:24px;
+		padding:2px 8px;
+		box-sizing:border-box;
+	}
+	
+	.libraryMainWrapper
+	{
+		padding-left:8px;
+		padding-right:8px;
+	}
+}
+
+/* Super Small */
+@media (max-width: 449px)
+{
+	.gameWindow
+	{
+		left:8px;
+	}
+
+	.backdrop
+	{
+		left:0px;
+	}
 }
