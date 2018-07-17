@@ -1,43 +1,59 @@
 :root
 {
-	/*--colorTabBackHover:lightgray;
+	--colorTabBack:var(--colorContentBack);
+	--colorTabBackHover:lightgray;
 	--colorTabBackSelected:lightblue;
 	
-	--colorButtonBackHover:lightgray;
-	--colorButtonBack:lightblue;
-	--colorButtonBackDisabled:darkgray;
-	--colorButtonFore:black;
-	--colorBackground:white;
-	--colorForeground:black;*/
-	
-	--colorTabBack:var(--colorBackground);
-	--colorTabBackHover:darkgray;
-	--colorTabBackSelected:red;
-	
-	--colorTabFore:white;
+	--colorTabFore:var(--colorContentFore);
 	--colorTabForeHover:var(--colorButtonFore);
 	--colorTabForeSelected:var(--colorButtonFore);
 	
-	--colorButtonBack:red;
-	--colorButtonBackHover:darkgray;
+	--colorEntryBack:var(--colorContentBack);
+	--colorEntryBackHover:lightgray;
+	--colorEntryBackSelected:lightblue;
+	
+	--colorEntryFore:var(--colorContentFore);
+	--colorEntryForeHover:var(--colorButtonFore);
+	--colorEntryForeSelected:var(--colorButtonFore);
+	
+	--colorButtonBack:lightgray;
+	--colorButtonBackHover:lightblue;
 	--colorButtonBackDisabled:darkgray;
 	
-	--colorButtonFore:white;
+	--colorButtonFore:var(--colorContentFore);
 	--colorButtonForeHover:var(--colorButtonFore);
 	--colorButtonForeDisabled:var(--colorButtonFore);
 	
-	--colorButtonSide:lightgray;
+	--colorButtonSide:var(--colorContentFore);
 	--colorButtonSideHover:var(--colorButtonSide);
 	--colorButtonSideDisabled:var(--colorButtonSide);
 	
-	--colorBackground:black;
-	--colorForeground:white;
+	--colorLongbarBack:#EBF5F9;
+	--colorLongbarFore:var(--colorContentFore);
+	--colorLongbarSide:var(--colorLongbarBack);
+	
+	--colorContentBack:white;
+	--colorContentFore:black;
+	
+	--colorHeadingBack:var(--colorContentBack);
+	--colorHeadingFore:var(--colorContentFore);
+	
+	--fontSerif:"Times New Roman", Tinos, "Liberation Serif", serif;
+	--fontSansSerif:Arial, sans-serif;
+	
+	--fontTab:var(--fontSerif);
+	--fontEntry:var(--fontSerif);
+	--fontButton:var(--fontSansSerif);
+	--fontLongbar:var(--fontSerif);
+	--fontContent:var(--fontSerif);
+	--fontHeading:var(--fontSerif);
 }
 
 body
 {
-	color:var(--colorForeground);
-	background-color:var(--colorBackground);
+	font-family:var(--fontContent);
+	background-color:var(--colorContentBack);
+	           color:var(--colorContentFore);
 }
 
 /* Debug */
@@ -49,8 +65,9 @@ body
 
 /* Buttons / Tabs */
 
-.neobutton
+button
 {
+	font-family: sans-serif;
 	display:inline-block;
 	padding:4px;
 	cursor:default;
@@ -60,56 +77,84 @@ body
 	border-radius:4px;
 	line-height:18px;
 	height:18px;
+	box-sizing:content-box;
 }
 
-.neobutton.inprogress
+.modalWindowClose
+{
+	font-weight:bold;
+	width:16px;
+	height:16px;
+	text-align:center;
+	position:absolute;
+	top:24px;
+	right:24px;
+	margin:0px 0px 0px 0px;
+	font-size:150%;
+}
+
+button.inprogress
 {
 	cursor:wait;
 }
 
-/* var(--colorTabBack)/var(--colorTabFore) */
-.tab,
-#librarySidebar li
+.tab
 {
+	font-family:var(--fontTab);
 	background-color:var(--colorTabBack);
 	           color:var(--colorTabFore);
 }
 
-/* var(--colorTabBackHover)/var(--colorTabForeHover) */
-.tab:hover,
-#librarySidebar li:hover
+.tab:hover
 {
 	background-color:var(--colorTabBackHover);
 	           color:var(--colorTabForeHover);
 }
 
-/* var(--colorTabBackSelected)/var(--colorTabForeSelected) */
-.activeTab.tab, .activeTab.tab:hover,
-#librarySidebar li.activeGameEntry, #librarySidebar li.activeGameEntry:hover
+.activeTab.tab, .activeTab.tab:hover
 {
 	text-decoration:underline;
 	background-color:var(--colorTabBackSelected);
 	           color:var(--colorTabForeSelected);
 }
 
-/* var(--colorButtonBack)/var(--colorButtonFore) */
-.neobutton
+#librarySidebar li
 {
+	font-family:var(--fontEntry);
+	background-color:var(--colorEntryBack);
+	           color:var(--colorEntryFore);
+}
+
+#librarySidebar li:hover
+{
+	background-color:var(--colorEntryBackHover);
+	           color:var(--colorEntryForeHover);
+}
+
+#librarySidebar li.activeGameEntry, #librarySidebar li.activeGameEntry:hover
+{
+	text-decoration:underline;
+	background-color:var(--colorEntryBackSelected);
+	           color:var(--colorEntryForeSelected);
+}
+
+button
+{
+	font-family:var(--fontButton);
+	font-weight:bold;
 	border:1px solid var(--colorButtonSide);
 	background-color:var(--colorButtonBack);
 	           color:var(--colorButtonFore);
 }
 
-/* var(--colorButtonBackHover)/var(--colorButtonForeHover) */
-.neobutton:hover
+button:hover
 {
 	border:1px solid var(--colorButtonSideHover);
 	background-color:var(--colorButtonBackHover);
 	           color:var(--colorButtonForeHover);
 }
 
-/* var(--colorButtonBackDisabled)/var(--colorButtonForeDisabled) */
-.neobutton.na, .neobutton.na:hover
+button.na, button.na:hover
 {
 	cursor:not-allowed;
 	border:1px solid var(--colorButtonSideDisabled);
@@ -121,7 +166,7 @@ body
 
 #tabs/*, #librarySidebar, #libraryMain*/
 {
-	border-bottom:solid var(--colorForeground) 1px;
+	border-bottom:solid var(--colorContentFore) 1px;
 }
 
 #tabBodyLibrary
@@ -147,7 +192,7 @@ body
 	left:0px;
 	right:0px;
 	border:none;
-	/*border:solid var(--colorForeground) 1px;*/
+	/*border:solid var(--colorContentFore) 1px;*/
 }
 
 #librarySidebar
@@ -174,6 +219,9 @@ body
 
 h1, h2
 {
+	font-family:var(--fontHeading);
+	background-color:var(--colorHeadingBack);
+	           color:var(--colorHeadingFore);
 	margin-top:0px;
 	margin-bottom:0px;
 }
@@ -225,10 +273,10 @@ h2
 .gameWindow
 {
 	position:fixed;
-	background-color:var(--colorBackground);
+	background-color:var(--colorContentBack);
 	text-align:center;
 	border-radius:32px;
-	border:1px solid var(--colorForeground);
+	border:1px solid var(--colorContentFore);
 }
 
 .backdrop
@@ -241,21 +289,11 @@ h2
 	background-color:rgba(0, 0, 0, 0.5);
 }
 
-.gameWindowExitButton
-{
-	font-weight:bold;
-	width:16px;
-	height:16px;
-	text-align:center;
-	position:absolute;
-	top:24px;
-	right:24px;
-	margin:0px 0px 0px 0px;
-}
-
 .longbar
 {
-	background-color:#EBF5F9;
+	border:1px solid var(--colorLongbarSide);
+	background-color:var(--colorLongbarBack);
+	           color:var(--colorLongbarFore);
 	padding-left:var(--pxStandardPadding);
 	padding-right:var(--pxStandardPadding);
 }
