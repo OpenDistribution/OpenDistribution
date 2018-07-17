@@ -6,6 +6,7 @@ let gameLibrary = new Map();
 
 function closeTabs()
 {
+	CloseAllModals();
 	let tabBodies = document.getElementsByClassName('tabBody');
 	
 	for (let i = 0; i < tabBodies.length; i++)
@@ -231,4 +232,34 @@ function InputChange(srcInput)
 		console.log(`${srcInput.name} = ${srcInput.checked}`);
 	}
 	console.log(srcInput);
+}
+
+function CloseAllModals()
+{
+	let backdrop = document.getElementById('libraryBackdrop');
+	let modalLaunch = document.getElementById('modalLaunch');
+	let modalOptions = document.getElementById('modalOptions');
+	backdrop.style.display = 'none';
+	modalLaunch.style.display = 'none';
+	modalOptions.style.display = 'none';
+}
+
+function OpenLaunchModal()
+{
+	let backdrop = document.getElementById('libraryBackdrop');
+	let modalLaunch = document.getElementById('modalLaunch');
+	let modalOptions = document.getElementById('modalOptions');
+	backdrop.style.display = 'block';
+	modalLaunch.style.display = 'block';
+	modalOptions.style.display = 'none';
+}
+
+function OpenOptionsModal()
+{
+	let backdrop = document.getElementById('libraryBackdrop');
+	let modalLaunch = document.getElementById('modalLaunch');
+	let modalOptions = document.getElementById('modalOptions');
+	backdrop.style.display = 'block';
+	modalLaunch.style.display = 'none';
+	modalOptions.style.display = 'block';
 }

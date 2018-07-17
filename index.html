@@ -25,7 +25,7 @@
 						<button type="button" id="gameDownloadButton">Download</button>
 					</span>
 					<span id="gameButtonBarRight">
-						<button type="button" id="gameOptionsButton">Options</button>
+						<button type="button" id="gameOptionsButton" onclick="OpenOptionsModal()">Options</button>
 					</span>
 				</div>
 				<div class="longbar" id="gameLinksBar">
@@ -40,15 +40,15 @@
 					<div id="gameDescription">No description available.</div>
 					<div id="gameInfoScreenshots"></div>
 				</div>
-				<div id="gameWindowBackdrop" class="backdrop">
-					<div id="gameLaunchWindow" class="gameWindow">
-						<button type="button" class="modalWindowClose" aria-label="Close Game Launch Modal Box">&times;</button>
+				<div id="libraryBackdrop" class="backdrop" onclick="CloseAllModals()">
+					<div id="modalLaunch" class="modal">
+						<button type="button" class="modalClose" aria-label="Close Game Launch Modal Box" onclick="CloseAllModals()">&times;</button>
 						<h1>Launch Game</a>
 						<button type="button">Launch Option 1 Placeholder</button>
 						<button type="button">Launch Option 2 Placeholder</button>
 					</div>
-					<div id="gameOptionsWindow" class="gameWindow">
-						<button type="button" class="modalWindowClose" aria-label="Close Game Options Modal Box">&times;</button>
+					<div id="modalOptions" class="modal">
+						<button type="button" class="modalClose" aria-label="Close Game Options Modal Box" onclick="CloseAllModals()">&times;</button>
 						<h1>Options</h1>
 						<ul>
 							<li><button type="button" id="gameUninstallButton">Uninstall</button></li>
