@@ -44,8 +44,8 @@ function createWindow()
 	win = new BrowserWindow({
 		width: 800,
 		height: 600,
-		minHeight: 400,
-		minWidth: 400,
+		minHeight: 500,
+		minWidth: 500,
 		title: packageJson.name,
 		icon:ICON_PATH
 	});

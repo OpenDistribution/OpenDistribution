@@ -1,11 +1,132 @@
-#tabs, .tabBody, #librarySidebar, #libraryMain
+:root
 {
-	border:solid black 1px;
+	/*--colorTabBackHover:lightgray;
+	--colorTabBackSelected:lightblue;
+	
+	--colorButtonBackHover:lightgray;
+	--colorButtonBack:lightblue;
+	--colorButtonBackDisabled:darkgray;
+	--colorButtonFore:black;
+	--colorBackground:white;
+	--colorForeground:black;*/
+	
+	--colorTabBack:var(--colorBackground);
+	--colorTabBackHover:darkgray;
+	--colorTabBackSelected:red;
+	
+	--colorTabFore:white;
+	--colorTabForeHover:var(--colorButtonFore);
+	--colorTabForeSelected:var(--colorButtonFore);
+	
+	--colorButtonBack:red;
+	--colorButtonBackHover:darkgray;
+	--colorButtonBackDisabled:darkgray;
+	
+	--colorButtonFore:white;
+	--colorButtonForeHover:var(--colorButtonFore);
+	--colorButtonForeDisabled:var(--colorButtonFore);
+	
+	--colorButtonSide:lightgray;
+	--colorButtonSideHover:var(--colorButtonSide);
+	--colorButtonSideDisabled:var(--colorButtonSide);
+	
+	--colorBackground:black;
+	--colorForeground:white;
+}
+
+body
+{
+	color:var(--colorForeground);
+	background-color:var(--colorBackground);
+}
+
+/* Debug */
+
+#gameWindowBackdrop
+{
+	display:none;
+}
+
+/* Buttons / Tabs */
+
+.neobutton
+{
+	display:inline-block;
+	padding:4px;
+	cursor:default;
+	user-select:none;
+	margin-top:4px;
+	margin-bottom:4px;
+	border-radius:4px;
+	line-height:18px;
+	height:18px;
+}
+
+.neobutton.inprogress
+{
+	cursor:wait;
+}
+
+/* var(--colorTabBack)/var(--colorTabFore) */
+.tab,
+#librarySidebar li
+{
+	background-color:var(--colorTabBack);
+	           color:var(--colorTabFore);
+}
+
+/* var(--colorTabBackHover)/var(--colorTabForeHover) */
+.tab:hover,
+#librarySidebar li:hover
+{
+	background-color:var(--colorTabBackHover);
+	           color:var(--colorTabForeHover);
+}
+
+/* var(--colorTabBackSelected)/var(--colorTabForeSelected) */
+.activeTab.tab, .activeTab.tab:hover,
+#librarySidebar li.activeGameEntry, #librarySidebar li.activeGameEntry:hover
+{
+	text-decoration:underline;
+	background-color:var(--colorTabBackSelected);
+	           color:var(--colorTabForeSelected);
+}
+
+/* var(--colorButtonBack)/var(--colorButtonFore) */
+.neobutton
+{
+	border:1px solid var(--colorButtonSide);
+	background-color:var(--colorButtonBack);
+	           color:var(--colorButtonFore);
+}
+
+/* var(--colorButtonBackHover)/var(--colorButtonForeHover) */
+.neobutton:hover
+{
+	border:1px solid var(--colorButtonSideHover);
+	background-color:var(--colorButtonBackHover);
+	           color:var(--colorButtonForeHover);
+}
+
+/* var(--colorButtonBackDisabled)/var(--colorButtonForeDisabled) */
+.neobutton.na, .neobutton.na:hover
+{
+	cursor:not-allowed;
+	border:1px solid var(--colorButtonSideDisabled);
+	background-color:var(--colorButtonBackDisabled);
+	           color:var(--colorButtonForeDisabled);
+}
+
+/* Main */
+
+#tabs/*, #librarySidebar, #libraryMain*/
+{
+	border-bottom:solid var(--colorForeground) 1px;
 }
 
 #tabBodyLibrary
 {
-	border:solid black 0px;
+	/*border:none;*/
 }
 
 #tabs
@@ -25,12 +146,8 @@
 	bottom:0px;
 	left:0px;
 	right:0px;
-	padding:16px;
-}
-
-.activeTab, .activeGameEntry
-{
-	text-decoration:underline;
+	border:none;
+	/*border:solid var(--colorForeground) 1px;*/
 }
 
 #librarySidebar
@@ -51,7 +168,6 @@
 	position:absolute;
 	top:0px;
 	bottom:0px;
-	left:256px;
 	right:0px;
 	overflow-y:scroll;
 }
@@ -78,26 +194,6 @@ h1, h2
 	padding:0px;
 }
 
-#librarySidebar li:hover
-{
-	background-color:lightgray;
-}
-
-li.activeGameEntry, #librarySidebar li.activeGameEntry:hover
-{
-	background-color:lightblue;
-}
-
-.tab:hover, .neobutton
-{
-	background-color:lightgray;
-}
-
-.activeTab.tab:hover, .activeTab.tab, .neobutton:hover
-{
-	background-color:lightblue;
-}
-
 #tabBodySettings, #tabBodyAbout
 {
 	overflow-y:scroll;
@@ -105,47 +201,20 @@ li.activeGameEntry, #librarySidebar li.activeGameEntry:hover
 
 #tabBodyAbout ul
 {
-	margin-top:0.0em;
+	margin-top:0px;
 	padding-left:1.5em;
 }
 
-#tabBodySettings ul
+#tabBodySettings ul, .gameWindow ul
 {
-	list-style-type: none;
+	list-style-type:none;
 	padding-left:0.8em;
-	margin-top:0.0em;
+	margin-top:0px;
 }
 
 .gameWindow ul
 {
-	list-style-type: none;
 	padding-left:0px;
-	margin-top:0px;
-}
-
-.neobutton
-{
-	display:inline-block;
-	padding:4px;
-	cursor:default;
-	user-select:none;
-	margin-top:4px;
-	margin-bottom:4px;
-	border-radius:4px;
-	border:1px solid black;
-	line-height:18px;
-	height:18px;
-}
-
-.neobutton.na, .neobutton.na:hover
-{
-	cursor:not-allowed;
-	background-color:darkgray;
-}
-
-.neobutton.inprogress
-{
-	cursor:wait;
 }
 
 h2
@@ -156,16 +225,17 @@ h2
 .gameWindow
 {
 	position:fixed;
-	background-color:white;
-	padding:16px;
+	background-color:var(--colorBackground);
 	text-align:center;
 	border-radius:32px;
-	border:1px solid black;
+	border:1px solid var(--colorForeground);
 }
 
 .backdrop
 {
 	position:fixed;
+	top:var(--pxTopbarHeight);
+	left:var(--pxSidebarWidth);
 	bottom:0px;
 	right:0px;
 	background-color:rgba(0, 0, 0, 0.5);
@@ -183,14 +253,11 @@ h2
 	margin:0px 0px 0px 0px;
 }
 
-#gameWindowBackdrop
-{
-	/*display:none;*/
-}
-
-#gameButtonBar, #gameLinksBar
+.longbar
 {
 	background-color:#EBF5F9;
+	padding-left:var(--pxStandardPadding);
+	padding-right:var(--pxStandardPadding);
 }
 
 .libraryMainWrapper
@@ -199,63 +266,82 @@ h2
 	box-sizing:border-box;
 }
 
+/* -------- */
+
+.libraryMainWrapper
+{
+	padding-left:var(--pxStandardPadding);
+	padding-right:var(--pxStandardPadding);
+}
+
+.gameWindow
+{
+	padding:var(--pxStandardPadding);
+	top:calc(var(--pxTopbarHeight) + var(--pxStandardPadding));
+	left:calc(var(--pxSidebarWidth) + var(--pxStandardPadding));
+	bottom:var(--pxStandardPadding);
+	right:var(--pxStandardPadding);
+}
+
+.tabBody
+{
+	top:var(--pxTopbarHeight);
+	padding:var(--pxStandardPadding);
+}
+
+#librarySidebar
+{
+	width:var(--pxSidebarWidth);
+}
+
+#librarySidebar li
+{
+	padding:0px var(--pxStandardPadding);
+}
+
+#librarySidebar ul
+{
+	margin:var(--pxStandardPadding) 0px;
+}
+
+#libraryMain
+{
+	padding-top:var(--pxStandardPadding);
+	padding-bottom:var(--pxStandardPadding);
+	left:var(--pxSidebarWidth);
+}
+
+#tabs
+{
+	font-size:var(--fontSizeMedium);
+	height:var(--pxTopbarHeight);
+	padding:calc(var(--pxStandardPadding) / 4) var(--pxStandardPadding);
+	box-sizing:border-box;
+}
+
+h1
+{
+	font-size:var(--fontSizeLarge);
+}
+
+h2
+{
+	font-size:var(--fontSizeMedium);
+}
+
 /* Large */
 @media (min-width: 600px)
 {
-	.tabBody
+	:root
 	{
-		top:48px;
+		--pxSidebarWidth:256px;
+		--pxTopbarHeight:48px;
+		--pxStandardPadding:16px;
+		--fontSizeLarge:32px;
+		--fontSizeMedium:2em;
 	}
 
-	#librarySidebar
-	{
-		width:256px;
-	}
-
-	#librarySidebar li
-	{
-		padding:0px 16px;
-	}
-
-	#librarySidebar ul
-	{
-		margin:16px 0px;
-	}
-
-	#libraryMain
-	{
-		left:256px;
-		padding-top:16px;
-		padding-bottom:16px;
-	}
-	
-	#gameButtonBar, #gameLinksBar
-	{
-		padding-left:16px;
-		padding-right:16px;
-	}
-
-	.gameWindow
-	{
-		top:calc(48px + 16px);
-		left:calc(256px + 16px);
-		bottom:16px;
-		right:16px;
-	}
-
-	.backdrop
-	{
-		top:48px;
-		left:256px;
-	}
-
-	#tabs
-	{
-		font-size:2em;
-		height:48px;
-		padding:4px 16px;
-		box-sizing:border-box;
-	}
+	/* Large-exclusive */
 	
 	#gameButtonBar
 	{
@@ -270,7 +356,7 @@ h2
 	{
 		position:absolute;
 		top:0px;
-		left:16px;
+		left:var(--pxStandardPadding);
 		display:block;
 	}
 
@@ -278,7 +364,7 @@ h2
 	{
 		position:absolute;
 		top:0px;
-		right:16px;
+		right:var(--pxStandardPadding);
 		display:block;
 	}
 
@@ -288,78 +374,18 @@ h2
 		text-align:center;
 		margin-bottom:4px;
 	}
-	
-	.libraryMainWrapper
-	{
-		padding-left:16px;
-		padding-right:16px;
-	}
 }
 
 /* Small */
 @media (max-width: 599px)
 {
-
-	.tabBody
+	:root
 	{
-		top:24px;
-		padding:8px;
-	}
-
-	#librarySidebar
-	{
-		width:192px;
-	}
-
-	#librarySidebar li
-	{
-		padding:0px 8px;
-	}
-
-	#librarySidebar ul
-	{
-		margin:8px 0px;
-	}
-
-	#libraryMain
-	{
-		padding-top:8px;
-		padding-bottom:8px;
-		left:192px;
-	}
-
-	#gameButtonBar, #gameLinksBar
-	{
-		padding-left:8px;
-		padding-right:8px;
-	}
-
-	.gameWindow
-	{
-		top:calc(24px + 8px);
-		left:calc(192px + 8px);
-		bottom:8px;
-		right:8px;
-	}
-
-	.backdrop
-	{
-		top:24px;
-		left:192px;
-	}
-
-	#tabs
-	{
-		font-size:16px;
-		height:24px;
-		padding:2px 8px;
-		box-sizing:border-box;
-	}
-	
-	.libraryMainWrapper
-	{
-		padding-left:8px;
-		padding-right:8px;
+		--pxSidebarWidth:192px;
+		--pxTopbarHeight:24px;
+		--pxStandardPadding:8px;
+		--fontSizeLarge:24px;
+		--fontSizeMedium:16px;
 	}
 }
 
@@ -368,7 +394,7 @@ h2
 {
 	.gameWindow
 	{
-		left:8px;
+		left:var(--pxStandardPadding);
 	}
 
 	.backdrop
