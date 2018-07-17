@@ -25,7 +25,7 @@
 						<button type="button" id="gameDownloadButton">Download</button>
 					</span>
 					<span id="gameButtonBarRight">
-						<button type="button" id="gameOptionsButton" onclick="OpenOptionsModal()">Options</button>
+						<button type="button" id="gameOptionsButton">Options</button>
 					</span>
 				</div>
 				<div class="longbar" id="gameLinksBar">
@@ -41,13 +41,13 @@
 					<div id="gameInfoScreenshots"></div>
 				</div>
 				<div id="libraryBackdrop" class="backdrop" onclick="CloseAllModals()">
-					<div id="modalLaunch" class="modal">
+					<div id="modalLaunch" class="modal" onclick="event.stopPropagation();">
 						<button type="button" class="modalClose" aria-label="Close Game Launch Modal Box" onclick="CloseAllModals()">&times;</button>
-						<h1>Launch Game</a>
-						<button type="button">Launch Option 1 Placeholder</button>
-						<button type="button">Launch Option 2 Placeholder</button>
+						<h1>Launch Game</h1>
+						<ul id="modalLaunchOptions">
+						</ul>
 					</div>
-					<div id="modalOptions" class="modal">
+					<div id="modalOptions" class="modal" onclick="event.stopPropagation();">
 						<button type="button" class="modalClose" aria-label="Close Game Options Modal Box" onclick="CloseAllModals()">&times;</button>
 						<h1>Options</h1>
 						<ul>

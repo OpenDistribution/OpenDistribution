@@ -1,4 +1,5 @@
 const {app, net, path, shell, BrowserWindow, ipcMain, Tray, Menu} = require('electron');
+const execFile = require('child_process').execFile;
 let fs = require('fs');
 let http = require('http');
 let request = require('request');
@@ -459,9 +460,13 @@ ipcMain.on('updated-view', function (event, message)
 	settingsStore.set("lastView", message);
 });
 
-ipcMain.on('play-game', function (event, gameId)
+ipcMain.on('play-game', function (event, gameId, command)
 {
-	console.log("Received unimplemented \"play-game\" event!");
+	console.log(`play-game: ${gameId}, "${command}".`);
+	execFile(command.cmd, command.args,
+	{
+		"cwd": GetBaseDir(`/Games/${gameId}`)
+	});
 });
 
 ipcMain.on('update-game', function (event, gameId)
