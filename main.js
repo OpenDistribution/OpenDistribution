@@ -458,9 +458,13 @@ ipcMain.on('download-file', function (event, gameId, downloadUrl, version)
 					console.log(`Extracted and deleted ${tempDownloadLocation}.`);
 				}
 			});
+			
 			libraryStore.set(`${gameId}.Installed`, true);
 			libraryStore.set(`${gameId}.Downloaded`, false);
 			libraryStore.set(`${gameId}.Version`, version);
+			
+			SendProgressReport(gameId);
+			
 			console.log(`End extract: ${log}`);
 		});
 
@@ -541,4 +545,14 @@ ipcMain.on('uninstall-game', function (event, gameId)
 	libraryStore.set(`${gameId}.Installed`, false);
 	libraryStore.set(`${gameId}.Downloaded`, false);
 	libraryStore.delete(`${gameId}.Version`);
+	
+	SendProgressReport(gameId);
+	
 });
+
+function SendProgressReport(gameId)
+{
+	win.webContents.send("progress-report", gameId, {
+		"installedVersion": libraryStore.get(`${gameId}.Version`)
+	});
+}

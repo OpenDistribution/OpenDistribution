@@ -37,54 +37,43 @@ function onLoad()
 	ipcRenderer.send("request-default-view");
 }
 
-function softSelectGameInLibrary(gameId)
+function DisplayGameProgress(gameId)
 {
-	selectedGameId = gameId;
-	let selectedGame = gameLibrary.get(gameId);
-	
-	let entries = document.getElementsByClassName('activeGameEntry');
-	for (let i = 0; i < entries.length; i++) { entries[i].classList.remove("activeGameEntry"); }
-	
-	let gameEntry = document.getElementById('gameEntry'+gameId);
-	if (gameEntry !== null)
+	if (gameId == selectedGameId) // If we're currently looking at this game entry.
 	{
-		gameEntry.classList.add("activeGameEntry");
-	}
-	
-	let gameInfoName = document.getElementById('gameInfoName');
-	gameInfoName.innerHTML = selectedGame.name;
-	
-	let uninstallGameName = document.getElementById('uninstallGameName');
-	uninstallGameName.innerHTML = selectedGame.name;
-	
-	let gameDownload = document.getElementById('gameDownloadButton');
-	gameDownload.classList.remove('na');
-	gameDownload.classList.remove('inprogress');
-	
-	let gameOptions = document.getElementById('gameOptionsButton');
-	gameOptions.classList.remove('na');
-	gameOptions.onclick = function() {};
-	
-	if (selectedGame.installedVersion !== null && selectedGame.installedVersion !== undefined)
-	{
-		// The game is installed.
-		gameOptions.onclick = function()
-		{
-			OpenOptionsModal();
-		};
+		let selectedGame = gameLibrary.get(gameId);
 		
-		if (selectedGame.latestVersion != selectedGame.installedVersion)
+		let gameDownload = document.getElementById('gameDownloadButton');
+		gameDownload.classList.remove('na');
+		gameDownload.classList.remove('inprogress');
+		
+		let gameOptions = document.getElementById('gameOptionsButton');
+		gameOptions.classList.remove('na');
+		gameOptions.onclick = function() {};
+		
+		let gameUpdate = document.getElementById('gameUpdateButton');
+		gameUpdate.style.display = 'none';
+		
+		if (selectedGame.installedVersion !== null && selectedGame.installedVersion !== undefined)
 		{
-			gameDownload.innerHTML = "Update";
-			gameDownload.onclick = function()
+			// The game is installed.
+			gameOptions.onclick = function()
 			{
-				gameDownload.classList.add('inprogress');
-				console.log("update-game");
-				ipcRenderer.send("update-game", gameId, selectedGame.download, selectedGame.latestVersion);
+				OpenOptionsModal();
 			};
-		}
-		else
-		{
+			
+			if (selectedGame.latestVersion != selectedGame.installedVersion)
+			{
+				gameUpdate.style.display = 'block';
+				gameUpdate.onclick = function()
+				{
+					gameUpdate.style.display = 'none';
+					gameDownload.classList.add('inprogress');
+					console.log("update-game");
+					ipcRenderer.send("update-game", gameId, selectedGame.download, selectedGame.latestVersion);
+				};
+			}
+			
 			if (selectedGame.launch === null || selectedGame.launch === undefined || (selectedGame.launch !== null && selectedGame.launch !== undefined && selectedGame.launch.length == 0))
 			{
 				gameDownload.innerHTML = "Can't Launch";
@@ -129,29 +118,52 @@ function softSelectGameInLibrary(gameId)
 				}
 			}
 		}
-	}
-	else
-	{
-		// The game is not installed.
-		gameOptions.classList.add('na');
-		
-		if (selectedGame.download !== null && selectedGame.download !== undefined)
-		{
-			gameDownload.innerHTML = "Download";
-			gameDownload.onclick = function()
-			{
-				console.log("download-file");
-				gameDownload.classList.add('inprogress');
-				ipcRenderer.send("download-file", gameId, selectedGame.download, selectedGame.latestVersion);
-			};
-		}
 		else
 		{
-			gameDownload.innerHTML = "Download Unavailable";
-			gameDownload.classList.add('na');
-			gameDownload.onclick = function() {};
+			// The game is not installed.
+			gameOptions.classList.add('na');
+			
+			if (selectedGame.download !== null && selectedGame.download !== undefined)
+			{
+				gameDownload.innerHTML = "Download";
+				gameDownload.onclick = function()
+				{
+					console.log("download-file");
+					gameDownload.classList.add('inprogress');
+					ipcRenderer.send("download-file", gameId, selectedGame.download, selectedGame.latestVersion);
+				};
+			}
+			else
+			{
+				gameDownload.innerHTML = "Download Unavailable";
+				gameDownload.classList.add('na');
+				gameDownload.onclick = function() {};
+			}
 		}
 	}
+}
+
+function softSelectGameInLibrary(gameId)
+{
+	selectedGameId = gameId;
+	let selectedGame = gameLibrary.get(gameId);
+	
+	let entries = document.getElementsByClassName('activeGameEntry');
+	for (let i = 0; i < entries.length; i++) { entries[i].classList.remove("activeGameEntry"); }
+	
+	let gameEntry = document.getElementById('gameEntry'+gameId);
+	if (gameEntry !== null)
+	{
+		gameEntry.classList.add("activeGameEntry");
+	}
+	
+	let gameInfoName = document.getElementById('gameInfoName');
+	gameInfoName.innerHTML = selectedGame.name;
+	
+	let uninstallGameName = document.getElementById('uninstallGameName');
+	uninstallGameName.innerHTML = selectedGame.name;
+	
+	DisplayGameProgress(gameId);
 	
 	let gameDescription = document.getElementById('gameDescription');
 	gameDescription.innerHTML = "";
@@ -365,7 +377,6 @@ function OpenUninstallModal()
 
 ipcRenderer.on('settings-list', (event, message) =>
 {
-	
 	let tabBodySettings = document.getElementById('tabBodySettings');
 	let inputs = tabBodySettings.getElementsByTagName("input");
 	
@@ -417,3 +428,14 @@ function UninstallGame(gameId)
 	ipcRenderer.send("uninstall-game", gameId);
 	CloseAllModals();
 }
+
+ipcRenderer.on('progress-report', (event, gameId, message) =>
+{
+	let currentVersion = gameLibrary.get(gameId);
+	currentVersion.installedVersion = message.installedVersion;
+	DisplayGameProgress(gameId);
+	/*console.log("progress-report:");
+	console.log(message);
+	console.log("gameLibrary.get(gameId):");
+	console.log(gameLibrary.get(gameId));*/
+});
