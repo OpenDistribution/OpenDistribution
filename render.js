@@ -59,7 +59,23 @@ function DisplayGameProgress(gameId)
 		let gameUpdate = document.getElementById('gameUpdateButton');
 		gameUpdate.style.display = 'none';
 		
-		if (selectedGame.installedVersion !== null && selectedGame.installedVersion !== undefined)
+		if (IsGameDownloading(gameId))
+		{
+			gameDownload.classList.add('inprogress');
+			gameDownload.onclick = function() {};
+			
+			let dNfo = downloadInfo.get(gameId);
+			
+			if (dNfo.extractionProgress > 0)
+			{
+				gameDownload.innerHTML = `Extracting (${+dNfo.extractionProgress.toFixed(2)}%)`;
+			}
+			else
+			{
+				gameDownload.innerHTML = `Downloading (${+dNfo.downloadProgress.toFixed(2)}%)`;
+			}
+		}
+		else if (IsGameInstalled(gameId))
 		{
 			// The game is installed.
 			gameOptions.onclick = function()
@@ -79,7 +95,7 @@ function DisplayGameProgress(gameId)
 				};
 			}
 			
-			if (selectedGame.launch === null || selectedGame.launch === undefined || (selectedGame.launch !== null && selectedGame.launch !== undefined && selectedGame.launch.length == 0))
+			if (IsNullOrEmpty(selectedGame.launch) || (!IsNullOrEmpty(selectedGame.launch) && selectedGame.launch.length == 0))
 			{
 				gameDownload.innerHTML = "Can't Launch";
 				gameDownload.classList.add('na');
@@ -128,7 +144,7 @@ function DisplayGameProgress(gameId)
 			// The game is not installed.
 			gameOptions.classList.add('na');
 			
-			if (selectedGame.download !== null && selectedGame.download !== undefined)
+			if (!IsNullOrEmpty(selectedGame.download))
 			{
 				gameDownload.innerHTML = "Download";
 				gameDownload.onclick = function()
@@ -136,6 +152,7 @@ function DisplayGameProgress(gameId)
 					console.log("download-file");
 					gameDownload.classList.add('inprogress');
 					ipcRenderer.send("download-file", gameId, selectedGame.download, selectedGame.latestVersion);
+					gameDownload.onclick = function() {};
 				};
 			}
 			else
@@ -180,16 +197,16 @@ function softSelectGameInLibrary(gameId)
 	
 	let gameDescription = document.getElementById('gameDescription');
 	gameDescription.innerHTML = "";
-	if (selectedGame.description !== null && selectedGame.description !== undefined)
+	if (!IsNullOrEmpty(selectedGame.description))
 	{
 		gameDescription.innerHTML = selectedGame.description;
 	}
 	
 	let gameInfoScreenshots = document.getElementById('gameInfoScreenshots');
 	gameInfoScreenshots.innerHTML = "";
-	if (selectedGame.screenshots !== null && selectedGame.screenshots !== undefined)
+	if (!IsNullOrEmpty(selectedGame.screenshots))
 	{
-		for (i = 0; i < selectedGame.screenshots.length; i++)
+		for (let i = 0; i < selectedGame.screenshots.length; i++)
 		{
 			let screenshot = document.createElement('img');
 			screenshot.setAttribute("src", selectedGame.screenshots[i]);
@@ -273,7 +290,7 @@ function UpdateGameEntryVisuals(gameEntry)
 		let gameId = gameEntry.getAttribute("for");
 		let gameJSON = gameLibrary.get(gameId);
 		
-		if (downloadInfo.has(gameId))
+		if (IsGameDownloading(gameId))
 		{
 			let dNfo = downloadInfo.get(gameId);
 			gameEntry.innerHTML = `${gameJSON.name} (${+((dNfo.downloadProgress * 0.95) + (dNfo.extractionProgress * 0.05)).toFixed(2)}%)`;
@@ -285,7 +302,7 @@ function UpdateGameEntryVisuals(gameEntry)
 		else
 		{
 			gameEntry.innerHTML = gameJSON.name;
-			if (gameJSON.installedVersion !== undefined && gameJSON.installedVersion !== null)
+			if (IsGameInstalled(gameId))
 			{
 				gameEntry.classList.add("installed");
 				gameEntry.classList.remove("uninstalled");
@@ -322,7 +339,7 @@ ipcRenderer.on('update-about', (event, message) =>
 	for(let i = 0; i < authorsList.length; i++)
 	{
 		let author = authorsList[i];
-		if (author.url !== undefined && author.url !== null && author.url !== '')
+		if (!IsNullOrEmpty(author.url))
 		{
 			authors += `<li><a href="${author.url}" target="_blank">${authorsList[i].name}</a></li>`;
 		}
@@ -471,7 +488,7 @@ ipcRenderer.on('settings-list', (event, message) =>
 
 function UninstallGame(gameId)
 {
-	if (gameId == undefined)
+	if (IsNullOrEmpty(gameId))
 	{
 		gameId = selectedGameId;
 	}
@@ -485,7 +502,7 @@ ipcRenderer.on('progress-report', (event, gameId, message) =>
 {
 	let currentVersion = gameLibrary.get(gameId);
 	currentVersion.installedVersion = message.installedVersion;
-	if (message.downloadProgress === null || message.downloadProgress === undefined)
+	if (IsNullOrEmpty(message.downloadProgress))
 	{
 		downloadInfo.delete(gameId);
 	}
@@ -497,3 +514,20 @@ ipcRenderer.on('progress-report', (event, gameId, message) =>
 	console.log("progress-report:");
 	console.log(message);
 });
+
+function IsGameDownloading(gameId)
+{
+	return downloadInfo.has(gameId);
+}
+
+function IsGameInstalled(gameId)
+{
+	let gameJSON = gameLibrary.get(gameId);
+	
+	return !IsNullOrEmpty(gameJSON.installedVersion);
+}
+
+function IsNullOrEmpty(str)
+{
+	return str === undefined || str === null || str === "";
+}
