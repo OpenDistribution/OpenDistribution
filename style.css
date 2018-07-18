@@ -8,13 +8,29 @@
 	--colorTabForeHover:var(--colorButtonFore);
 	--colorTabForeSelected:var(--colorButtonFore);
 	
-	--colorEntryBack:var(--colorContentBack);
-	--colorEntryBackHover:lightgray;
-	--colorEntryBackSelected:lightblue;
+	--colorEntryBackInstalled:var(--colorContentBack);
+	--colorEntryBackInstalledHover:lightgray;
+	--colorEntryBackInstalledSelected:lightblue;
 	
-	--colorEntryFore:var(--colorContentFore);
-	--colorEntryForeHover:var(--colorButtonFore);
-	--colorEntryForeSelected:var(--colorButtonFore);
+	--colorEntryBackUninstalled:var(--colorEntryBackInstalled);
+	--colorEntryBackUninstalledHover:var(--colorEntryBackInstalledHover);
+	--colorEntryBackUninstalledSelected:var(--colorEntryBackInstalledSelected);
+	
+	--colorEntryBackDownloading:var(--colorEntryBackInstalled);
+	--colorEntryBackDownloadingHover:var(--colorEntryBackInstalledHover);
+	--colorEntryBackDownloadingSelected:var(--colorEntryBackInstalledSelected);
+	
+	--colorEntryForeInstalled:var(--colorContentFore);
+	--colorEntryForeInstalledHover:var(--colorEntryForeInstalled);
+	--colorEntryForeInstalledSelected:var(--colorEntryForeInstalled);
+	
+	--colorEntryForeUninstalled:darkgray;
+	--colorEntryForeUninstalledHover:black;
+	--colorEntryForeUninstalledSelected:black;
+	
+	--colorEntryForeDownloading:darkgreen;
+	--colorEntryForeHoverDownloading:var(--colorEntryForeDownloading);
+	--colorEntryForeSelectedDownloading:var(--colorEntryForeDownloading);
 	
 	--colorButtonBack:lightgray;
 	--colorButtonBackHover:lightblue;
@@ -111,25 +127,74 @@ button.inprogress
 	           color:var(--colorTabForeSelected);
 }
 
+/* Installed */
+
 #librarySidebar li
 {
 	font-family:var(--fontEntry);
-	background-color:var(--colorEntryBack);
-	           color:var(--colorEntryFore);
+	background-color:var(--colorEntryBackInstalled);
+	           color:var(--colorEntryForeInstalled);
 }
 
 #librarySidebar li:hover
 {
-	background-color:var(--colorEntryBackHover);
-	           color:var(--colorEntryForeHover);
+	background-color:var(--colorEntryBackHoverInstalled);
+	           color:var(--colorEntryForeHoverInstalled);
 }
 
 #librarySidebar li.activeGameEntry, #librarySidebar li.activeGameEntry:hover
 {
 	text-decoration:underline;
-	background-color:var(--colorEntryBackSelected);
-	           color:var(--colorEntryForeSelected);
+	background-color:var(--colorEntryBackSelectedInstalled);
+	           color:var(--colorEntryForeSelectedInstalled);
 }
+
+/* Uninstalled */
+
+#librarySidebar li.uninstalled
+{
+	font-weight:lighter;
+	font-family:var(--fontEntry);
+	background-color:var(--colorEntryBackUninstalled);
+	           color:var(--colorEntryForeUninstalled);
+}
+
+#librarySidebar li.uninstalled:hover
+{
+	background-color:var(--colorEntryBackUninstalledHover);
+	           color:var(--colorEntryForeUninstalledHover);
+}
+
+#librarySidebar li.activeGameEntry.uninstalled, #librarySidebar li.activeGameEntry.uninstalled:hover
+{
+	text-decoration:underline;
+	background-color:var(--colorEntryBackUninstalledSelected);
+	           color:var(--colorEntryForeUninstalledSelected);
+}
+
+/* Downloading */
+
+#librarySidebar li.downloading
+{
+	font-family:var(--fontEntry);
+	background-color:var(--colorEntryBackDownloading);
+	           color:var(--colorEntryForeDownloading);
+}
+
+#librarySidebar li.downloading:hover
+{
+	background-color:var(--colorEntryDownloadingBackHover);
+	           color:var(--colorEntryDownloadingForeHover);
+}
+
+#librarySidebar li.activeGameEntry.downloading, #librarySidebar li.activeGameEntry.downloading:hover
+{
+	text-decoration:underline;
+	background-color:var(--colorEntryBackDownloadingSelected);
+	           color:var(--colorEntryForeDownloadingSelected);
+}
+
+/* ... */
 
 button
 {

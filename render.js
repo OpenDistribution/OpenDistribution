@@ -39,7 +39,11 @@ function onLoad()
 
 function DisplayGameProgress(gameId)
 {
-	if (gameId == selectedGameId) // If we're currently looking at this game entry.
+	// Always:
+	UpdateGameEntryVisuals(document.getElementById(`gameEntry${gameId}`));
+	
+	// Only if we're currently looking at this game entry:
+	if (gameId == selectedGameId)
 	{
 		let selectedGame = gameLibrary.get(gameId);
 		
@@ -232,14 +236,16 @@ ipcRenderer.on('games-list-addition', (event, message) =>
 	}
 	
 	let gameJSON = message;
+	gameLibrary.set(gameJSON.id, gameJSON);
 	
 	let gameEntry = document.createElement('li');
 	gameEntry.appendChild(document.createTextNode(gameJSON.name));
 	gameEntry.onclick = function() { selectGameInLibrary(gameJSON.id); };
 	gameEntry.setAttribute("id", "gameEntry"+gameJSON.id);
-	refreshingList.push(gameEntry);
+	gameEntry.setAttribute("for", gameJSON.id);
+	UpdateGameEntryVisuals(gameEntry);
 	
-	gameLibrary.set(gameJSON.id, gameJSON);
+	refreshingList.push(gameEntry);
 	
 	if (selectedGameId === null)
 	{
@@ -248,6 +254,27 @@ ipcRenderer.on('games-list-addition', (event, message) =>
 	
 	gamesListRefreshed();
 });
+
+function UpdateGameEntryVisuals(gameEntry)
+{
+	if (gameEntry !== null)
+	{
+		let gameJSON = gameLibrary.get(gameEntry.getAttribute("for"));
+		
+		if (gameJSON.installedVersion !== undefined && gameJSON.installedVersion !== null)
+		{
+			gameEntry.classList.add("installed");
+			gameEntry.classList.remove("uninstalled");
+			gameEntry.classList.remove("downloading");
+		}
+		else
+		{
+			gameEntry.classList.remove("installed");
+			gameEntry.classList.add("uninstalled");
+			gameEntry.classList.remove("downloading");
+		}
+	}
+}
 
 ipcRenderer.on('change-view', (event, message) =>
 {
