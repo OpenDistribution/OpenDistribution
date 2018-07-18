@@ -290,27 +290,22 @@ ipcRenderer.on('update-about', (event, message) =>
 	</ul>`;
 });
 
-let inputChangeValid = false;
-
 function InputChange(srcInput)
 {
-	if (inputChangeValid == true)
+	if (srcInput.type == "checkbox")
 	{
-		if (srcInput.type == "checkbox")
-		{
-			ipcRenderer.send("change-setting", srcInput.name, srcInput.checked);
-			//console.log(`${srcInput.name} = ${srcInput.checked}`);
-		}
-		else if (srcInput.type == "radio")
-		{
-			ipcRenderer.send("change-setting", srcInput.name, srcInput.value);
-			//console.log(`${srcInput.name} = ${srcInput.value}`);
-		}
-		else if (srcInput.type == "text")
-		{
-			ipcRenderer.send("change-setting", srcInput.name, srcInput.value);
-			//console.log(`${srcInput.name} = ${srcInput.value}`);
-		}
+		ipcRenderer.send("change-setting", srcInput.name, srcInput.checked);
+		//console.log(`${srcInput.name} = ${srcInput.checked}`);
+	}
+	else if (srcInput.type == "radio")
+	{
+		ipcRenderer.send("change-setting", srcInput.name, srcInput.value);
+		//console.log(`${srcInput.name} = ${srcInput.value}`);
+	}
+	else if (srcInput.type == "text")
+	{
+		ipcRenderer.send("change-setting", srcInput.name, srcInput.value);
+		//console.log(`${srcInput.name} = ${srcInput.value}`);
 	}
 }
 
@@ -380,6 +375,9 @@ ipcRenderer.on('settings-list', (event, message) =>
 		{
 			console.log(`Unknown input type "${input.type}" with name "${input.name}" and value "${input.value}".`);
 		}
+		input.onchange = function()
+		{
+			InputChange(input);
+		}
 	}
-	inputChangeValid = true;
 });
