@@ -16,6 +16,8 @@ let trayIcon = null;
 let libraryStore = new Store({ name: "library" });
 let settingsStore = new Store({ name: "settings" });
 
+let downloadInfo = new Map();
+
 function setSettingDefault(setting, defaultValue)
 {
 	if (!settingsStore.has(setting))
@@ -39,12 +41,16 @@ function loadSettings()
 	setSettingDefault("LastView", "Library");
 }
 
-function downloadFile(source, destination, callback)
+function downloadFile(gameId, source, destination, callback)
 {
 	let p = progress(request(source), {});
 	p.on('progress', function (state)
 	{
 		console.log('progress', state);
+		
+		let dNfo = downloadInfo.get(gameId);
+		dNfo.downloadProgress = state.percent * 100;
+		SendProgressReport(gameId);
 	});
 	p.on('error', function (err)
 	{
@@ -310,14 +316,9 @@ function handleGamedef(filePath)
 					
 					if (libraryStore.has(gameId))
 					{
-						if (libraryStore.has(`${gameId}.Installed`))
-						{
-							passedData["installed"] = true;
-						
-						if (libraryStore.get(`${gameId}.Installed`) == true && libraryStore.has(`${gameId}.Version`))
+						if (libraryStore.has(`${gameId}.Version`))
 						{
 							passedData["installedVersion"] = libraryStore.get(`${gameId}.Version`);
-						}
 						}
 					}
 				}
@@ -410,8 +411,8 @@ function GetBaseDir(filePath)
 ipcMain.on('download-file', function (event, gameId, downloadUrl, version)
 {
 	console.log(`download-file: ${gameId}, ${downloadUrl}`);
-	libraryStore.set(`${gameId}.Installed`, false);
-	libraryStore.set(`${gameId}.Downloaded`, false);
+	libraryStore.delete(`${gameId}.Version`);
+	downloadInfo.set(gameId, {"downloadProgress": 0, "extractionProgress": 0});
 	
 	if (!fs.existsSync(GetBaseDir("/Downloads")))
 	{
@@ -428,11 +429,14 @@ ipcMain.on('download-file', function (event, gameId, downloadUrl, version)
 		fs.mkdirSync(GetBaseDir(`/Games/${gameId}`));
 	}
 	
-	downloadFile(downloadUrl, GetBaseDir(`/Downloads/${gameId}.ZIP`), function()
+	downloadFile(gameId, downloadUrl, GetBaseDir(`/Downloads/${gameId}.ZIP`), function()
 	{
-		libraryStore.set(`${gameId}.Installed`, false);
-		libraryStore.set(`${gameId}.Downloaded`, true);
-		libraryStore.set(`${gameId}.Version`, version);
+		//libraryStore.set(`${gameId}.Version`, version);
+		
+		let dNfo = downloadInfo.get(gameId);
+		dNfo.downloadProgress = 100;
+		SendProgressReport(gameId);
+		
 		console.log("Finished downloading the file!");
 		console.log("Start extract.");
 		
@@ -447,6 +451,7 @@ ipcMain.on('download-file', function (event, gameId, downloadUrl, version)
 
 		unzipper.on('extract', function (log)
 		{
+			console.log(`Extraction finished: ${log}`);
 			fs.unlink(tempDownloadLocation, function(err)
 			{
 				if (err !== undefined && err !== null && err !== '')
@@ -456,20 +461,23 @@ ipcMain.on('download-file', function (event, gameId, downloadUrl, version)
 				else
 				{
 					console.log(`Extracted and deleted ${tempDownloadLocation}.`);
+					
+					libraryStore.set(`${gameId}.Version`, version);
+					
+					downloadInfo.delete(gameId);
+					SendProgressReport(gameId);
 				}
 			});
-			
-			libraryStore.set(`${gameId}.Installed`, true);
-			libraryStore.set(`${gameId}.Downloaded`, false);
-			libraryStore.set(`${gameId}.Version`, version);
-			
-			SendProgressReport(gameId);
-			
-			console.log(`End extract: ${log}`);
 		});
 
 		unzipper.on('progress', function (fileIndex, fileCount)
 		{
+			libraryStore.set(`${gameId}.Version`, version);
+			
+			let dNfo = downloadInfo.get(gameId);
+			dNfo.extractionProgress = (fileIndex/fileCount) * 100;
+			SendProgressReport(gameId);
+			
 			console.log(`Progress: Extracted ${fileIndex + 1}/${fileCount}.`);
 		});
 
@@ -539,20 +547,25 @@ ipcMain.on('uninstall-game', function (event, gameId)
 		else
 		{
 			console.log(`Deleted directory ${pathToUninstall}.`);
+			libraryStore.delete(`${gameId}.Version`);
+			SendProgressReport(gameId);
 		}
 	});
-	
-	libraryStore.set(`${gameId}.Installed`, false);
-	libraryStore.set(`${gameId}.Downloaded`, false);
-	libraryStore.delete(`${gameId}.Version`);
-	
-	SendProgressReport(gameId);
-	
 });
 
 function SendProgressReport(gameId)
 {
-	win.webContents.send("progress-report", gameId, {
-		"installedVersion": libraryStore.get(`${gameId}.Version`)
-	});
+	let dNfo = downloadInfo.get(gameId);
+	if (dNfo !== undefined && dNfo !== null)
+	{
+		console.log("PATH A");
+		win.webContents.send("progress-report", gameId, dNfo);
+	}
+	else
+	{
+		console.log("PATH B");
+		win.webContents.send("progress-report", gameId, {
+			"installedVersion": libraryStore.get(`${gameId}.Version`)
+		});
+	}
 }
