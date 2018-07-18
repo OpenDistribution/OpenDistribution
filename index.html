@@ -42,18 +42,29 @@
 				</div>
 				<div id="libraryBackdrop" class="backdrop" onclick="CloseAllModals()">
 					<div id="modalLaunch" class="modal" onclick="event.stopPropagation();">
-						<button type="button" class="modalClose" aria-label="Close Game Launch Modal Box" onclick="CloseAllModals()">&times;</button>
+						<button type="button" class="modalClose" aria-label='Close "Game Launch" Modal' onclick="CloseAllModals()">&times;</button>
 						<h1>Launch Game</h1>
 						<ul id="modalLaunchOptions">
 						</ul>
 					</div>
 					<div id="modalOptions" class="modal" onclick="event.stopPropagation();">
-						<button type="button" class="modalClose" aria-label="Close Game Options Modal Box" onclick="CloseAllModals()">&times;</button>
+						<button type="button" class="modalClose" aria-label='Close "Game Options" Modal' onclick="CloseAllModals()">&times;</button>
 						<h1>Options</h1>
 						<ul>
-							<li><button type="button" id="gameUninstallButton">Uninstall</button></li>
+							<li><button type="button" id="gameUninstallButton" onclick="OpenUninstallModal()">Uninstall</button></li>
 							<li><button type="button" id="gameOpenDirectoryButton">Open Game Directory</button></li>
 							<li><button type="button" id="gameCreateShortcutButton">Create Desktop Shortcut</button></li>
+						</ul>
+					</div>
+				</div>
+				<div id="areyousureBackdrop" class="backdrop" onclick="CloseAYSModals()">
+					<div id="modalAYS" class="modal smallmodal" onclick="event.stopPropagation();">
+						<button type="button" class="modalClose" aria-label='Close "Uninstall Game" Modal' onclick="CloseAYSModals()">&times;</button>
+						<h1>Uninstall</h1>
+						<p>Are you sure you want to uninstall <span id="uninstallGameName">this game</span>?</p>
+						<ul>
+							<li><button type="button" id="gameUninstallButton" onclick="UninstallGame()">Uninstall</button></li>
+							<li><button type="button" id="gameOpenDirectoryButton" onclick="CloseAYSModals()">Cancel</button></li>
 						</ul>
 					</div>
 				</div>

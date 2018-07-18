@@ -1,6 +1,6 @@
 const {app, net, path, shell, BrowserWindow, ipcMain, Tray, Menu} = require('electron');
 const execFile = require('child_process').execFile;
-let fs = require('fs');
+let fs = require('fs-extra');
 let http = require('http');
 let request = require('request');
 let progress = require('request-progress');
@@ -404,7 +404,7 @@ function refreshSettings()
 
 function GetBaseDir(filePath)
 {
-	return app.getPath('userData')+filePath;
+	return app.getPath('userData') + filePath;
 }
 
 ipcMain.on('download-file', function (event, gameId, downloadUrl, version)
@@ -520,4 +520,25 @@ ipcMain.on('change-setting', function (event, settingName, settingValue)
 			win.webContents.closeDevTools();
 		}
 	}
+});
+
+ipcMain.on('uninstall-game', function (event, gameId)
+{
+	console.log(`uninstall-game: ${gameId}`);
+	let pathToUninstall = GetBaseDir(`/Games/${gameId}`);
+	fs.remove(pathToUninstall, function(err)
+	{
+		if (err !== undefined && err !== null && err !== '')
+		{
+			console.log(`Error deleting directory ${pathToUninstall}: ${err}`);
+		}
+		else
+		{
+			console.log(`Deleted directory ${pathToUninstall}.`);
+		}
+	});
+	
+	libraryStore.set(`${gameId}.Installed`, false);
+	libraryStore.set(`${gameId}.Downloaded`, false);
+	libraryStore.delete(`${gameId}.Version`);
 });

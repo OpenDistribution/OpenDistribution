@@ -54,6 +54,9 @@ function softSelectGameInLibrary(gameId)
 	let gameInfoName = document.getElementById('gameInfoName');
 	gameInfoName.innerHTML = selectedGame.name;
 	
+	let uninstallGameName = document.getElementById('uninstallGameName');
+	uninstallGameName.innerHTML = selectedGame.name;
+	
 	let gameDownload = document.getElementById('gameDownloadButton');
 	gameDownload.classList.remove('na');
 	gameDownload.classList.remove('inprogress');
@@ -309,6 +312,8 @@ function InputChange(srcInput)
 	}
 }
 
+// Options Modals
+
 function CloseAllModals()
 {
 	let backdrop = document.getElementById('libraryBackdrop');
@@ -317,6 +322,7 @@ function CloseAllModals()
 	backdrop.style.display = 'none';
 	modalLaunch.style.display = 'none';
 	modalOptions.style.display = 'none';
+	CloseAYSModals();
 }
 
 function OpenLaunchModal()
@@ -337,6 +343,24 @@ function OpenOptionsModal()
 	backdrop.style.display = 'block';
 	modalLaunch.style.display = 'none';
 	modalOptions.style.display = 'block';
+}
+
+// "Are You Sure?" Modals
+
+function CloseAYSModals()
+{
+	let backdrop = document.getElementById('areyousureBackdrop');
+	let modalUninstall = document.getElementById('modalLaunch');
+	backdrop.style.display = 'none';
+	modalUninstall.style.display = 'none';
+}
+
+function OpenUninstallModal()
+{
+	let backdrop = document.getElementById('areyousureBackdrop');
+	let modalUninstall = document.getElementById('modalLaunch');
+	backdrop.style.display = 'block';
+	modalUninstall.style.display = 'block';
 }
 
 ipcRenderer.on('settings-list', (event, message) =>
@@ -381,3 +405,15 @@ ipcRenderer.on('settings-list', (event, message) =>
 		}
 	}
 });
+
+function UninstallGame(gameId)
+{
+	if (gameId == undefined)
+	{
+		gameId = selectedGameId;
+	}
+	
+	console.log(`uninstall-game: ${gameId}`);
+	ipcRenderer.send("uninstall-game", gameId);
+	CloseAllModals();
+}
