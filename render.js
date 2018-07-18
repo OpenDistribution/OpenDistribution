@@ -34,7 +34,7 @@ function openTab(tabName)
 
 function onLoad()
 {
-	ipcRenderer.send("request-view");
+	ipcRenderer.send("request-default-view");
 }
 
 function softSelectGameInLibrary(gameId)
@@ -290,17 +290,28 @@ ipcRenderer.on('update-about', (event, message) =>
 	</ul>`;
 });
 
+let inputChangeValid = false;
+
 function InputChange(srcInput)
 {
-	if (srcInput.type == "radio")
+	if (inputChangeValid == true)
 	{
-		console.log(`${srcInput.name} = ${srcInput.value}`);
+		if (srcInput.type == "checkbox")
+		{
+			ipcRenderer.send("change-setting", srcInput.name, srcInput.checked);
+			//console.log(`${srcInput.name} = ${srcInput.checked}`);
+		}
+		else if (srcInput.type == "radio")
+		{
+			ipcRenderer.send("change-setting", srcInput.name, srcInput.value);
+			//console.log(`${srcInput.name} = ${srcInput.value}`);
+		}
+		else if (srcInput.type == "text")
+		{
+			ipcRenderer.send("change-setting", srcInput.name, srcInput.value);
+			//console.log(`${srcInput.name} = ${srcInput.value}`);
+		}
 	}
-	else if (srcInput.type == "checkbox")
-	{
-		console.log(`${srcInput.name} = ${srcInput.checked}`);
-	}
-	console.log(srcInput);
 }
 
 function CloseAllModals()
@@ -332,3 +343,43 @@ function OpenOptionsModal()
 	modalLaunch.style.display = 'none';
 	modalOptions.style.display = 'block';
 }
+
+ipcRenderer.on('settings-list', (event, message) =>
+{
+	
+	let tabBodySettings = document.getElementById('tabBodySettings');
+	let inputs = tabBodySettings.getElementsByTagName("input");
+	
+	//console.log("settings-list:");
+	//console.log(message);
+	//console.log(inputs);
+	
+	for(let i = 0; i < inputs.length; i++)
+	{
+		let input = inputs[i];
+		if (input.type == "checkbox")
+		{
+			input.checked = message[input.name];
+		}
+		else if (input.type == "radio")
+		{
+			if (message[input.name] == input.value)
+			{
+				input.checked = true;
+			}
+			else
+			{
+				input.checked = false;
+			}
+		}
+		else if (input.type == "text")
+		{
+			input.value = message[input.name];
+		}
+		else
+		{
+			console.log(`Unknown input type "${input.type}" with name "${input.name}" and value "${input.value}".`);
+		}
+	}
+	inputChangeValid = true;
+});

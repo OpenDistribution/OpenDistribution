@@ -16,12 +16,27 @@ let trayIcon = null;
 let libraryStore = new Store({ name: "library" });
 let settingsStore = new Store({ name: "settings" });
 
+function setSettingDefault(setting, defaultValue)
+{
+	if (!settingsStore.has(setting))
+	{
+		settingsStore.set(setting, defaultValue);
+	}
+}
+
 function loadSettings()
 {
 	console.log("libraryStore:");
 	console.log(libraryStore.store);
 	console.log("settingsStore:");
 	console.log(settingsStore.store);
+	
+	setSettingDefault("StartMaximized", true);
+	setSettingDefault("CloseToTray", true);
+	setSettingDefault("AutoUpdateGames", true);
+	setSettingDefault("DefaultTab", "Library");
+	setSettingDefault("EnableDeveloperTools", false);
+	setSettingDefault("LastView", "Library");
 }
 
 function downloadFile(source, destination, callback)
@@ -51,13 +66,16 @@ function createWindow()
 		icon:ICON_PATH
 	});
 	
-	if (!(settingsStore.has("StartMaximized") && settingsStore.get("StartMaximized") == false))
+	if (settingsStore.get("StartMaximized") != false)
 	{
 		win.maximize();
 	}
 	
 	win.loadFile('index.html');
-	win.webContents.openDevTools();
+	if (settingsStore.get("EnableDeveloperTools"))
+	{
+		win.webContents.openDevTools();
+	}
 	win.on('closed', () =>
 	{
 		win = null; // Garbage collect it.
@@ -67,10 +85,17 @@ function createWindow()
 	{
 		win.webContents.send("update-about", packageJson);
 		refreshLibrary();
+		refreshSettings();
 	});
 	
 	win.on('close', function(event)
 	{
+		if (settingsStore.get("CloseToTray") == false)
+		{
+			app.isQuiting = true;
+			app.quit();
+		}
+		
 		if (!app.isQuiting)
 		{
 			event.preventDefault();
@@ -372,6 +397,11 @@ function refreshLibrary()
 	}
 }
 
+function refreshSettings()
+{
+	win.webContents.send("settings-list", settingsStore.store);
+}
+
 function GetBaseDir(filePath)
 {
 	return app.getPath('userData')+filePath;
@@ -443,21 +473,21 @@ ipcMain.on('download-file', function (event, gameId, downloadUrl, version)
 	});
 });
 
-ipcMain.on('request-view', function (event)
+ipcMain.on('request-default-view', function (event)
 {
-	if (settingsStore.has("lastView"))
+	if (settingsStore.get("DefaultTab") == "Last")
 	{
-		win.webContents.send("change-view", settingsStore.get("lastView"));
+		win.webContents.send("change-view", settingsStore.get("LastView"));
 	}
 	else
 	{
-		win.webContents.send("change-view", "Library");
+		win.webContents.send("change-view", settingsStore.get("DefaultTab"));
 	}
 });
 
 ipcMain.on('updated-view', function (event, message)
 {
-	settingsStore.set("lastView", message);
+	settingsStore.set("LastView", message);
 });
 
 ipcMain.on('play-game', function (event, gameId, command)
@@ -472,4 +502,22 @@ ipcMain.on('play-game', function (event, gameId, command)
 ipcMain.on('update-game', function (event, gameId)
 {
 	console.log("Received unimplemented \"update-game\" event!");
+});
+
+ipcMain.on('change-setting', function (event, settingName, settingValue)
+{
+	console.log(`${settingName} = ${settingValue}`);
+	settingsStore.set(settingName, settingValue);
+	
+	if (settingName == "EnableDeveloperTools")
+	{
+		if (settingsStore.get("EnableDeveloperTools"))
+		{
+			win.webContents.openDevTools();
+		}
+		else
+		{
+			win.webContents.closeDevTools();
+		}
+	}
 });
