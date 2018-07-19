@@ -38,6 +38,13 @@ function onLoad()
 	ipcRenderer.send("request-default-view");
 }
 
+function GetGoodSize(size)
+{
+	// Credit: https://stackoverflow.com/a/20732091/827326
+	let i = Math.floor( Math.log(size) / Math.log(1024) );
+	return ( size / Math.pow(1024, i) ).toFixed(2) * 1 + ' ' + ['B', 'kB', 'MB', 'GB', 'TB'][i];
+}
+
 function DisplayGameProgress(gameId)
 {
 	// Always:
@@ -149,7 +156,15 @@ function DisplayGameProgress(gameId)
 			
 			if (!IsNullOrEmpty(selectedGame.download))
 			{
-				gameDownload.innerHTML = "Download";
+				if (IsNullOrEmpty(selectedGame.extractedsizeinbytes))
+				{
+					gameDownload.innerHTML = "Download";
+				}
+				else
+				{
+					gameDownload.innerHTML = `Download (${GetGoodSize(selectedGame.extractedsizeinbytes)})`;
+					
+				}
 				gameDownload.onclick = function()
 				{
 					console.log("download-file");
