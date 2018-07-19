@@ -42,6 +42,7 @@
 		"electron-store": "^2.0.0",
 		"fs-extra": "^7.0.0",
 		"request": "^2.87.0",
-		"request-progress": "^3.0.0"
+		"request-progress": "^3.0.0",
+		"siema": "^1.5.1"
 	}
 }

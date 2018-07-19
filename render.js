@@ -241,6 +241,7 @@ function softSelectGameInLibrary(gameId)
 			gameInfoScreenshots.appendChild(screenshot);
 		}
 	}
+	let screenshotThing = new Siema({selector: "#gameInfoScreenshots", loop: "true", perPage: 1});
 }
 
 function selectGameInLibrary(gameId)
@@ -393,6 +394,7 @@ ipcRenderer.on('update-about', (event, message) =>
 		<li>node ${process.versions.node}</li>
 		<li>Chromium ${process.versions.chrome}</li>
 		<li>Electron ${process.versions.electron}</li>
+		<li>Siema 1.5.1</li>
 	</ul>
 	
 	<h2>Contribute</h2>
