@@ -64,6 +64,8 @@ function DisplayGameProgress(gameId)
 			gameDownload.classList.add('inprogress');
 			gameDownload.onclick = function() {};
 			
+			gameOptions.classList.add('na');
+			
 			let dNfo = downloadInfo.get(gameId);
 			
 			if (dNfo.extractionProgress > 0)
@@ -104,7 +106,8 @@ function DisplayGameProgress(gameId)
 			else
 			{
 				gameDownload.innerHTML = "&#x25B6; Play";
-				if (selectedGame.launch.length == 1)
+				//console.log(selectedGame.launch);
+				if (Object.keys(selectedGame.launch).length == 1)
 				{
 					let command = selectedGame.launch[Object.keys(selectedGame.launch)[0]];
 					gameDownload.onclick = function()
@@ -216,6 +219,7 @@ function softSelectGameInLibrary(gameId)
 	SetGameLink('gameCommunityButton', selectedGame.community);
 	SetGameLink('gameWikiButton', selectedGame.wiki);
 	SetGameLink('gameManualButton', selectedGame.manual);
+	SetGameLink('gameIssuesButton', selectedGame.issues);
 	SetGameLink('gameSourceCodeButton', selectedGame.repository);
 	SetGameLink('gameDonateButton', selectedGame.donate);
 	

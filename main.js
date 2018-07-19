@@ -37,8 +37,9 @@ function loadSettings()
 	setSettingDefault("CloseToTray", true);
 	setSettingDefault("AutoUpdateGames", true);
 	setSettingDefault("DefaultTab", "Library");
-	setSettingDefault("EnableDeveloperTools", false);
+	setSettingDefault("DeveloperTools", false);
 	setSettingDefault("LastView", "Library");
+	setSettingDefault("DebugProxying", false);
 }
 
 function downloadFile(gameId, source, destination, callback)
@@ -78,7 +79,7 @@ function createWindow()
 	}
 	
 	win.loadFile('index.html');
-	if (settingsStore.get("EnableDeveloperTools"))
+	if (settingsStore.get("DeveloperTools"))
 	{
 		win.webContents.openDevTools();
 	}
@@ -282,8 +283,21 @@ function readTextFile(filePath)
 	return data;
 }
 
+function HandleDebugProxy(filePath)
+{
+	if (settingsStore.get("DebugProxying"))
+	{
+		return filePath.replace("https://raw.githubusercontent.com/OpenDistribution/od-gamelist/master/", "http://localhost/Capstone-proxy-gamelist/");
+	}
+	else
+	{
+		return filePath;
+	}
+}
+
 function handleGamedef(filePath)
 {
+	filePath = HandleDebugProxy(filePath);
 	//console.log(`WE ARE REQUESTING THE FOLLOWING GAMEDEF: ${filePath}`);
 	//console.log(`This is a gamedef: ${filePath}`);
 	let request = net.request(filePath);
@@ -326,6 +340,14 @@ function handleGamedef(filePath)
 						}
 					}
 					
+					if (passedData.hasOwnProperty("screenshots"))
+					{
+						for (let i = 0; i < passedData.screenshots.length; i++)
+						{
+							passedData.screenshots[i] = HandleDebugProxy(passedData.screenshots[i]);
+						}
+					}
+					
 					win.webContents.send("games-list-addition", passedData);
 				}
 				catch(e)
@@ -348,6 +370,7 @@ function handleGamedef(filePath)
 
 function handleGamelist(filePath)
 {
+	filePath = HandleDebugProxy(filePath);
 	//console.log(`WE ARE REQUESTING THE FOLLOWING PATH: ${filePath}`);
 	let request = net.request(filePath);
 	request.setHeader("Cache-Control", "no-cache");
@@ -419,6 +442,8 @@ function GetBaseDir(filePath)
 
 ipcMain.on('download-file', function (event, gameId, downloadUrl, version)
 {
+	downloadUrl = HandleDebugProxy(downloadUrl);
+
 	console.log(`download-file: ${gameId}, ${downloadUrl}`);
 	libraryStore.delete(`${gameId}.Version`);
 	downloadInfo.set(gameId, {"downloadProgress": 0, "extractionProgress": 0});
@@ -451,6 +476,8 @@ ipcMain.on('download-file', function (event, gameId, downloadUrl, version)
 		
 		console.log("Should write to: " + GetBaseDir(`/Games/${gameId}`));
 
+		let lastExtractUpdate = 0;
+
 		let tempDownloadLocation = GetBaseDir(`/Downloads/${gameId}.ZIP`)
 		let unzipper = new DecompressZip(tempDownloadLocation);
 		unzipper.on('error', function (err)
@@ -460,7 +487,7 @@ ipcMain.on('download-file', function (event, gameId, downloadUrl, version)
 
 		unzipper.on('extract', function (log)
 		{
-			console.log(`Extraction finished: ${log}`);
+			//console.log(`Extraction finished: ${log}`);
 			fs.unlink(tempDownloadLocation, function(err)
 			{
 				if (err !== undefined && err !== null && err !== '')
@@ -481,13 +508,20 @@ ipcMain.on('download-file', function (event, gameId, downloadUrl, version)
 
 		unzipper.on('progress', function (fileIndex, fileCount)
 		{
-			libraryStore.set(`${gameId}.Version`, version);
+			//libraryStore.set(`${gameId}.Version`, version);
 			
-			let dNfo = downloadInfo.get(gameId);
-			dNfo.extractionProgress = (fileIndex/fileCount) * 100;
-			SendProgressReport(gameId);
+			let dateNow = Date.now();
 			
-			console.log(`Progress: Extracted ${fileIndex + 1}/${fileCount}.`);
+			if(dateNow >= lastExtractUpdate + 3000)
+			{
+				lastExtractUpdate = dateNow;
+				let dNfo = downloadInfo.get(gameId);
+				dNfo.extractionProgress = (fileIndex/fileCount) * 100;
+				SendProgressReport(gameId);
+			}
+			
+			
+			//console.log(`Progress: Extracted ${fileIndex + 1}/${fileCount}.`);
 		});
 
 		unzipper.extract({ path: GetBaseDir(`/Games/${gameId}`) });
@@ -514,10 +548,20 @@ ipcMain.on('updated-view', function (event, message)
 ipcMain.on('play-game', function (event, gameId, command)
 {
 	console.log(`play-game: ${gameId}, "${command}".`);
-	execFile(command.cmd, command.args,
+	console.log(command);
+	console.log("---");
+	console.log(command.page);
+	if (!IsNullOrEmpty(command.page))
 	{
-		"cwd": GetBaseDir(`/Games/${gameId}`)
-	});
+		shell.openExternal(GetBaseDir(`/Games/${gameId}/${command.page}`));
+	}
+	else
+	{
+		execFile(command.cmd, command.args,
+		{
+			"cwd": GetBaseDir(`/Games/${gameId}`)
+		});
+	}
 });
 
 ipcMain.on('update-game', function (event, gameId)
@@ -530,9 +574,9 @@ ipcMain.on('change-setting', function (event, settingName, settingValue)
 	console.log(`${settingName} = ${settingValue}`);
 	settingsStore.set(settingName, settingValue);
 	
-	if (settingName == "EnableDeveloperTools")
+	if (settingName == "DeveloperTools")
 	{
-		if (settingsStore.get("EnableDeveloperTools"))
+		if (settingsStore.get("DeveloperTools"))
 		{
 			win.webContents.openDevTools();
 		}
@@ -567,12 +611,12 @@ function SendProgressReport(gameId)
 	let dNfo = downloadInfo.get(gameId);
 	if (dNfo !== undefined && dNfo !== null)
 	{
-		console.log("PATH A");
+		//console.log("PATH A");
 		win.webContents.send("progress-report", gameId, dNfo);
 	}
 	else
 	{
-		console.log("PATH B");
+		//console.log("PATH B");
 		win.webContents.send("progress-report", gameId, {
 			"installedVersion": libraryStore.get(`${gameId}.Version`)
 		});
@@ -589,3 +633,8 @@ ipcMain.on('request-error-message-test', function (event)
 {
 	LogError(`Error parsing .gamedef @ "http://localhost/Capstone-proxy-gamelist/games/vegastrike.gamedef": Unexpected token h in JSON at position 856`);
 });
+
+function IsNullOrEmpty(str)
+{
+	return str === undefined || str === null || str === "";
+}

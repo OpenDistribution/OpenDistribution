@@ -471,8 +471,8 @@ h2
 
 	#gameLinksBarCenter
 	{
-		display:block;
 		text-align:center;
+		display:block;
 		margin-bottom:4px;
 	}
 }
