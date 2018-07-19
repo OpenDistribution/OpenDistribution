@@ -287,6 +287,7 @@ function handleGamedef(filePath)
 	//console.log(`WE ARE REQUESTING THE FOLLOWING GAMEDEF: ${filePath}`);
 	//console.log(`This is a gamedef: ${filePath}`);
 	let request = net.request(filePath);
+	request.setHeader("Cache-Control", "no-cache");
 	let body = '';
 	request.on('response', (response) =>
 	{
@@ -306,24 +307,31 @@ function handleGamedef(filePath)
 			{
 				//gameLibrary.set(gameJSON.id, JSON.parse(body));
 				
-				let passedData = JSON.parse(body);
-				let gameId = passedData.id;
-				if (passedData.hasOwnProperty("version"))
+				try
 				{
-					let latestVersion = passedData.version;
-					delete passedData["version"];
-					passedData["latestVersion"] = latestVersion;
-					
-					if (libraryStore.has(gameId))
+					let passedData = JSON.parse(body);
+					let gameId = passedData.id;
+					if (passedData.hasOwnProperty("version"))
 					{
-						if (libraryStore.has(`${gameId}.Version`))
+						let latestVersion = passedData.version;
+						delete passedData["version"];
+						passedData["latestVersion"] = latestVersion;
+						
+						if (libraryStore.has(gameId))
 						{
-							passedData["installedVersion"] = libraryStore.get(`${gameId}.Version`);
+							if (libraryStore.has(`${gameId}.Version`))
+							{
+								passedData["installedVersion"] = libraryStore.get(`${gameId}.Version`);
+							}
 						}
 					}
+					
+					win.webContents.send("games-list-addition", passedData);
 				}
-				
-				win.webContents.send("games-list-addition", passedData);
+				catch(e)
+				{
+					LogError(`Error parsing .gamedef @ "${filePath}": ${e.message}`);
+				}
 			}
 		});
 		response.on('error', (error) =>
@@ -342,6 +350,7 @@ function handleGamelist(filePath)
 {
 	//console.log(`WE ARE REQUESTING THE FOLLOWING PATH: ${filePath}`);
 	let request = net.request(filePath);
+	request.setHeader("Cache-Control", "no-cache");
 	let body = '';
 	request.on('response', (response) =>
 	{
@@ -569,3 +578,14 @@ function SendProgressReport(gameId)
 		});
 	}
 }
+
+function LogError(errorMessage)
+{
+	console.log(`error-occurred: ${errorMessage}`);
+	win.webContents.send("error-occurred", errorMessage);
+}
+
+ipcMain.on('request-error-message-test', function (event)
+{
+	LogError(`Error parsing .gamedef @ "http://localhost/Capstone-proxy-gamelist/games/vegastrike.gamedef": Unexpected token h in JSON at position 856`);
+});

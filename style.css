@@ -72,6 +72,15 @@ body
 	           color:var(--colorContentFore);
 }
 
+/* Links */
+
+a.disabled
+{
+	cursor:not-allowed;
+	color:#555;
+	text-decoration-line:line-through;
+}
+
 /* Buttons / Tabs */
 
 button

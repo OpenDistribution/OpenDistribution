@@ -180,6 +180,23 @@ function RefreshActiveGameEntry()
 	}
 }
 
+// TODO: Make this handle arrays as well, in case, say, there's multiple community options (i.e. forums and Skype or Discord)
+function SetGameLink(linkId, value)
+{
+	let gameLink = document.getElementById(linkId);
+	if (IsNullOrEmpty(value))
+	{
+		gameLink.href = "javascript:void(0)";
+		gameLink.disabled = true;
+		gameLink.classList.add("disabled");
+	}
+	else
+	{
+		gameLink.href = value;
+		gameLink.classList.remove("disabled");
+	}
+}
+
 function softSelectGameInLibrary(gameId)
 {
 	selectedGameId = gameId;
@@ -194,6 +211,13 @@ function softSelectGameInLibrary(gameId)
 	uninstallGameName.innerHTML = selectedGame.name;
 	
 	DisplayGameProgress(gameId);
+	
+	SetGameLink('gameWebsiteButton', selectedGame.website);
+	SetGameLink('gameCommunityButton', selectedGame.community);
+	SetGameLink('gameWikiButton', selectedGame.wiki);
+	SetGameLink('gameManualButton', selectedGame.manual);
+	SetGameLink('gameSourceCodeButton', selectedGame.repository);
+	SetGameLink('gameDonateButton', selectedGame.donate);
 	
 	let gameDescription = document.getElementById('gameDescription');
 	gameDescription.innerHTML = "";
@@ -515,6 +539,11 @@ ipcRenderer.on('progress-report', (event, gameId, message) =>
 	console.log(message);
 });
 
+ipcRenderer.on('error-occurred', (event, message) =>
+{
+	console.log(`Node.js Error: ${message}`);
+});
+
 function IsGameDownloading(gameId)
 {
 	return downloadInfo.has(gameId);
@@ -530,4 +559,9 @@ function IsGameInstalled(gameId)
 function IsNullOrEmpty(str)
 {
 	return str === undefined || str === null || str === "";
+}
+
+function SendTestErrorMessages()
+{
+	ipcRenderer.send("request-error-message-test");
 }
