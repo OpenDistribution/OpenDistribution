@@ -382,7 +382,7 @@ function SendGame(passedData, cached)
 			{
 				passedData["installedVersion"] = installedVersion;
 				
-				if (!cached && (latestVersion != installedVersion))
+				if (!cached && settingsStore.get("AutoUpdateGames") != false && (latestVersion != installedVersion))
 				{
 					DownloadGame(gameId);
 				}
@@ -615,6 +615,8 @@ function DownloadGame(gameId)
 			
 			downloadInfo.delete(gameId);
 			SendProgressReport(gameId);
+			
+			win.webContents.send("send-message", `${gameJSON.name} (${gameId}) version ${gameJSON.version} installed.`);
 		});
 		
 		unzipper.on('progress', function (fileIndex, fileCount)

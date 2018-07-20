@@ -89,9 +89,9 @@ function DisplayGameProgress(gameId)
 				OpenOptionsModal();
 			};
 			
-			console.log(gameId);
+			/*console.log(gameId);
 			console.log(selectedGame.latestVersion);
-			console.log(selectedGame.installedVersion);
+			console.log(selectedGame.installedVersion);*/
 			if (selectedGame.latestVersion != selectedGame.installedVersion)
 			{
 				gameUpdate.style.display = 'inline-block';
@@ -335,6 +335,7 @@ ipcRenderer.on('games-list-addition', (event, message) =>
 		if (refreshingList[i].getAttribute("for") == gameJSON.id)
 		{
 			gameEntry = refreshingList[i];
+			DisplayGameProgress(gameJSON.id);
 		}
 	}
 	
@@ -354,7 +355,7 @@ ipcRenderer.on('games-list-addition', (event, message) =>
 	{
 		softSelectGameInLibrary(gameJSON.id);
 	}
-	
+
 	gamesListRefreshed();
 });
 
@@ -587,13 +588,18 @@ ipcRenderer.on('progress-report', (event, gameId, message) =>
 		downloadInfo.set(gameId, message);
 	}
 	DisplayGameProgress(gameId);
-	console.log("progress-report:");
-	console.log(message);
+	/*console.log("progress-report:");
+	console.log(message);*/
 });
 
 ipcRenderer.on('error-occurred', (event, message) =>
 {
 	console.log(`Node.js Error: ${message}`);
+});
+
+ipcRenderer.on('send-message', (event, message) =>
+{
+	console.log(`Node.js says: ${message}`);
 });
 
 function IsGameDownloading(gameId)
