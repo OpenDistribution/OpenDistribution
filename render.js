@@ -89,6 +89,9 @@ function DisplayGameProgress(gameId)
 				OpenOptionsModal();
 			};
 			
+			console.log(gameId);
+			console.log(selectedGame.latestVersion);
+			console.log(selectedGame.installedVersion);
 			if (selectedGame.latestVersion != selectedGame.installedVersion)
 			{
 				gameUpdate.style.display = 'block';
@@ -323,14 +326,26 @@ ipcRenderer.on('games-list-addition', (event, message) =>
 	let gameJSON = message;
 	gameLibrary.set(gameJSON.id, gameJSON);
 	
-	let gameEntry = document.createElement('li');
-	gameEntry.appendChild(document.createTextNode(gameJSON.name));
-	gameEntry.onclick = function() { selectGameInLibrary(gameJSON.id); };
-	gameEntry.setAttribute("id", "gameEntry"+gameJSON.id);
-	gameEntry.setAttribute("for", gameJSON.id);
-	UpdateGameEntryVisuals(gameEntry);
+	let gameEntry;
+	for (let i = 0; i < refreshingList.length; i++)
+	{
+		if (refreshingList[i].getAttribute("for") == gameJSON.id)
+		{
+			gameEntry = refreshingList[i];
+		}
+	}
 	
-	refreshingList.push(gameEntry);
+	if (IsNullOrEmpty(gameEntry))
+	{
+		gameEntry = document.createElement('li');
+		gameEntry.appendChild(document.createTextNode(gameJSON.name));
+		gameEntry.onclick = function() { selectGameInLibrary(gameJSON.id); };
+		gameEntry.setAttribute("id", "gameEntry"+gameJSON.id);
+		gameEntry.setAttribute("for", gameJSON.id);
+		UpdateGameEntryVisuals(gameEntry);
+		
+		refreshingList.push(gameEntry);
+	}
 	
 	if (selectedGameId === null)
 	{
