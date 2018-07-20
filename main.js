@@ -581,11 +581,12 @@ ipcMain.on('play-game', function (event, gameId, command, gameJSON)
 				webPreferences: {
 					nodeIntegration: false,
 					contextIsolation: true,
-					sandbox: true
+					sandbox: true,
+					partition: `persist:${gameJSON.id}`
 				}
 			});
 			
-			//gameWin.setMenu(null);
+			gameWin.setMenu(null);
 			
 			if (settingsStore.get("StartMaximized") != false)
 			{
