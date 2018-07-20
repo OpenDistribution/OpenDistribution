@@ -550,9 +550,10 @@ function DownloadGame(gameId)
 	
 	let downloadUrl = gameJSON.download;
 	downloadUrl = HandleDebugProxy(downloadUrl);
-
+	
 	console.log(`download-file: ${gameId}`);
 	libraryStore.delete(`${gameId}.Version`);
+	libraryStore.set(`${gameId}.CachedInfo`, gameJSON);
 	downloadInfo.set(gameId, {"downloadProgress": 0, "extractionProgress": 0});
 	
 	if (!DirectoryExists(GetUserDir("/Downloads")))
@@ -615,6 +616,7 @@ function DownloadGame(gameId)
 			
 			downloadInfo.delete(gameId);
 			SendProgressReport(gameId);
+			SendGame(gameJSON, true);
 			
 			win.webContents.send("send-message", `${gameJSON.name} (${gameId}) version ${gameJSON.version} installed.`);
 		});
