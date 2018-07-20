@@ -558,7 +558,6 @@ ipcMain.on('play-game', function (event, gameId, command, gameJSON)
 		else
 		{
 			let gameRoot = GetBaseDir(`/Games/${gameId}/`);
-			let content = `<style>body{margin:0px;}</style><webview src="${gameRoot}${command.page}" partition="persist:${gameId}" style="width:100%;height:100%;margin:0px;"></webview>`;
 			let winFavicon = ICON_PATH;
 			
 			if (fs.existsSync(`${gameRoot}favicon.ico`))
@@ -573,19 +572,22 @@ ipcMain.on('play-game', function (event, gameId, command, gameJSON)
 				minHeight: 500,
 				minWidth: 500,
 				title: gameJSON.name,
-				icon: winFavicon
+				icon: winFavicon,
+				webPreferences: {
+					nodeIntegration: false,
+					contextIsolation: true,
+					sandbox: true
+				}
 			});
 			
-			gameWin.setMenu(null);
+			//gameWin.setMenu(null);
 			
 			if (settingsStore.get("StartMaximized") != false)
 			{
 				gameWin.maximize();
 			}
 			
-			gameWin.loadURL(`data:text/html;charset=UTF-8,${encodeURIComponent(content)}`, {
-				baseURLForDataURL: `file://${gameRoot}`
-			});
+			gameWin.loadFile(`${gameRoot}${command.page}`)
 			
 			gameWin.on('closed', () =>
 			{
