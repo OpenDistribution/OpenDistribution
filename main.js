@@ -33,10 +33,10 @@ function setSettingDefault(setting, defaultValue)
 
 function loadSettings()
 {
-	console.log("libraryStore:");
+/*	console.log("libraryStore:");
 	console.log(libraryStore.store);
 	console.log("settingsStore:");
-	console.log(settingsStore.store);
+	console.log(settingsStore.store);*/
 	
 	setSettingDefault("StartMaximized", true);
 	setSettingDefault("CloseToTray", true);
@@ -338,7 +338,7 @@ function handleGamedef(filePath)
 				try
 				{
 					let passedData = JSON.parse(body);
-					SendGame(passedData);
+					SendGame(passedData, false);
 				}
 				catch(e)
 				{
@@ -358,11 +358,11 @@ function handleGamedef(filePath)
 	request.end();
 }
 
-function SendGame(passedData)
+function SendGame(passedData, cached)
 {
 	let gameId = passedData.id;
 	
-	untouchedGameJsons[passedData.id] = JSON.parse(JSON.stringify(passedData));
+	untouchedGameJsons[gameId] = JSON.parse(JSON.stringify(passedData)); // Deep Copy
 	
 	if (passedData.hasOwnProperty("version"))
 	{
@@ -377,9 +377,15 @@ function SendGame(passedData)
 		
 		if (libraryStore.has(gameId))
 		{
-			if (libraryStore.has(`${gameId}.Version`))
+			let installedVersion = libraryStore.get(`${gameId}.Version`);
+			if (!IsNullOrEmpty(installedVersion))
 			{
-				passedData["installedVersion"] = libraryStore.get(`${gameId}.Version`);
+				passedData["installedVersion"] = installedVersion;
+				
+				if (!cached && (latestVersion != installedVersion))
+				{
+					DownloadGame(gameId);
+				}
 			}
 		}
 	}
@@ -441,11 +447,11 @@ function handleGamelist(filePath)
 				}
 			}
 			
-			console.log("Before:");
-			console.log(queuedGamelists);
+/*			console.log("Before:");
+			console.log(queuedGamelists);*/
 			RemoveFromArray(queuedGamelists, request);
-			console.log("After:");
-			console.log(queuedGamelists);
+/*			console.log("After:");
+			console.log(queuedGamelists);*/
 		});
 		response.on('error', (error) =>
 		{
@@ -470,7 +476,7 @@ function SendInstalledGames()
 			let cachedInfo = libraryStore.get(`${[workingKeys[i]]}.CachedInfo`);
 			if (!IsNullOrEmpty(cachedInfo))
 			{
-				SendGame(cachedInfo);
+				SendGame(cachedInfo, true);
 			}
 		}
 	}
@@ -538,7 +544,7 @@ function DirectoryExists(dir)
 	return fs.existsSync(dir);
 }
 
-ipcMain.on('download-game', function (event, gameId)
+function DownloadGame(gameId)
 {
 	let gameJSON = untouchedGameJsons[gameId];
 	
@@ -605,7 +611,6 @@ ipcMain.on('download-game', function (event, gameId)
 				}
 			});
 			
-			console.log(gameJSON);
 			libraryStore.set(`${gameId}.Version`, gameJSON.version);
 			
 			downloadInfo.delete(gameId);
@@ -631,6 +636,11 @@ ipcMain.on('download-game', function (event, gameId)
 		
 		unzipper.extract({ path: GetUserDir(`/Games/${gameId}`) });
 	});
+}
+
+ipcMain.on('download-game', function (event, gameId)
+{
+	DownloadGame(gameId);
 });
 
 ipcMain.on('request-default-view', function (event)
@@ -707,11 +717,6 @@ ipcMain.on('play-game', function (event, gameId, command)
 			"cwd": GetUserDir(`/Games/${gameId}`)
 		});
 	}
-});
-
-ipcMain.on('update-game', function (event, gameId)
-{
-	console.log("Received unimplemented \"update-game\" event!");
 });
 
 ipcMain.on('change-setting', function (event, settingName, settingValue)
