@@ -1,5 +1,6 @@
-const {app, net, path, shell, BrowserWindow, ipcMain, Tray, Menu} = require('electron');
+const {app, net, shell, BrowserWindow, ipcMain, Tray, Menu} = require('electron');
 const execFile = require('child_process').execFile;
+const path = require('path');
 let fs = require('fs-extra');
 let http = require('http');
 let request = require('request');
@@ -72,7 +73,11 @@ function createWindow()
 		minHeight: 500,
 		minWidth: 500,
 		title: packageJson.name,
-		icon:ICON_PATH
+		icon:ICON_PATH,
+		webPreferences: {
+			nodeIntegration: false,
+			preload: path.join(__dirname, "preload.js")
+		}
 	});
 	
 	if (settingsStore.get("StartMaximized") != false)

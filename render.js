@@ -1,6 +1,3 @@
-const {ipcRenderer} = require('electron');
-let fs = require('fs');
-
 let selectedGameId = null;
 let gameLibrary = new Map();
 let downloadInfo = new Map();
@@ -406,9 +403,9 @@ ipcRenderer.on('update-about', (event, message) =>
 	
 	<h2>Using</h2>
 	<ul>
-		<li>node ${process.versions.node}</li>
-		<li>Chromium ${process.versions.chrome}</li>
-		<li>Electron ${process.versions.electron}</li>
+		<li>node ${processVersions.node}</li>
+		<li>Chromium ${processVersions.chrome}</li>
+		<li>Electron ${processVersions.electron}</li>
 		<li>Siema 1.5.1</li>
 	</ul>
 	
