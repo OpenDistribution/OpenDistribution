@@ -119,7 +119,7 @@ function DisplayGameProgress(gameId)
 					let command = selectedGame.launch[Object.keys(selectedGame.launch)[0]];
 					gameDownload.onclick = function()
 					{
-						ipcRenderer.send("play-game", gameId, command);
+						ipcRenderer.send("play-game", gameId, command, selectedGame);
 					};
 				}
 				else
@@ -136,7 +136,7 @@ function DisplayGameProgress(gameId)
 							launch.setAttribute("type", "button");
 							launch.onclick = function()
 							{
-								ipcRenderer.send("play-game", gameId, command);
+								ipcRenderer.send("play-game", gameId, command, selectedGame);
 								CloseAllModals();
 							}
 							

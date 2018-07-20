@@ -11,6 +11,7 @@ let Store = require('electron-store');
 let ICON_PATH = './icon.png';
 
 let win = null; // This needs to be global, or it'll be garbage collected.
+let gameWin = null;
 let trayIcon = null;
 
 let libraryStore = new Store({ name: "library" });
@@ -40,6 +41,7 @@ function loadSettings()
 	setSettingDefault("DeveloperTools", false);
 	setSettingDefault("LastView", "Library");
 	setSettingDefault("DebugProxying", false);
+	setSettingDefault("OpenBrowserGamesExternally", false);
 }
 
 function downloadFile(gameId, source, destination, callback)
@@ -545,15 +547,51 @@ ipcMain.on('updated-view', function (event, message)
 	settingsStore.set("LastView", message);
 });
 
-ipcMain.on('play-game', function (event, gameId, command)
+ipcMain.on('play-game', function (event, gameId, command, gameJSON)
 {
-	console.log(`play-game: ${gameId}, "${command}".`);
-	console.log(command);
-	console.log("---");
-	console.log(command.page);
 	if (!IsNullOrEmpty(command.page))
 	{
-		shell.openExternal(GetBaseDir(`/Games/${gameId}/${command.page}`));
+		if (settingsStore.get("OpenBrowserGamesExternally"))
+		{
+			shell.openExternal(GetBaseDir(`/Games/${gameId}/${command.page}`));
+		}
+		else
+		{
+			let gameRoot = GetBaseDir(`/Games/${gameId}/`);
+			let content = `<style>body{margin:0px;}</style><webview src="${gameRoot}${command.page}" partition="persist:${gameId}" style="width:100%;height:100%;margin:0px;"></webview>`;
+			let winFavicon = ICON_PATH;
+			
+			if (fs.existsSync(`${gameRoot}favicon.ico`))
+			{
+				winFavicon = `${gameRoot}favicon.ico`;
+			}
+			
+			// TODO: Check if it has a favicon.
+			gameWin = new BrowserWindow({
+				width: 800,
+				height: 600,
+				minHeight: 500,
+				minWidth: 500,
+				title: gameJSON.name,
+				icon: winFavicon
+			});
+			
+			gameWin.setMenu(null);
+			
+			if (settingsStore.get("StartMaximized") != false)
+			{
+				gameWin.maximize();
+			}
+			
+			gameWin.loadURL(`data:text/html;charset=UTF-8,${encodeURIComponent(content)}`, {
+				baseURLForDataURL: `file://${gameRoot}`
+			});
+			
+			gameWin.on('closed', () =>
+			{
+				gameWin = null; // Garbage collect it.
+			});
+		}
 	}
 	else
 	{
@@ -611,12 +649,10 @@ function SendProgressReport(gameId)
 	let dNfo = downloadInfo.get(gameId);
 	if (dNfo !== undefined && dNfo !== null)
 	{
-		//console.log("PATH A");
 		win.webContents.send("progress-report", gameId, dNfo);
 	}
 	else
 	{
-		//console.log("PATH B");
 		win.webContents.send("progress-report", gameId, {
 			"installedVersion": libraryStore.get(`${gameId}.Version`)
 		});
