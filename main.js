@@ -358,11 +358,13 @@ function handleGamedef(filePath)
 	request.end();
 }
 
-function SendGame(passedData, cached)
+function SendGame(srcData, cached)
 {
-	let gameId = passedData.id;
+	let gameId = srcData.id;
 	
-	untouchedGameJsons[gameId] = JSON.parse(JSON.stringify(passedData)); // Deep Copy
+	untouchedGameJsons[gameId] = srcData;
+	
+	let passedData = JSON.parse(JSON.stringify(srcData)); // Deep Copy
 	
 	if (passedData.hasOwnProperty("version"))
 	{
