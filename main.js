@@ -20,6 +20,9 @@ let settingsStore = new Store({ name: "settings" });
 
 let downloadInfo = new Map();
 
+let queuedGamelists = [];
+let sentGames = [];
+
 function setSettingDefault(setting, defaultValue)
 {
 	if (!settingsStore.has(setting))
@@ -47,7 +50,11 @@ function loadSettings()
 
 function downloadFile(gameId, source, destination, callback)
 {
-	let p = progress(request(source), {});
+	let p = progress(request(source), {
+		headers: {
+			'Cache-Control': 'no-cache'
+		}
+	});
 	p.on('progress', function (state)
 	{
 		console.log('progress', state);
@@ -76,7 +83,7 @@ function createWindow()
 		icon:ICON_PATH,
 		webPreferences: {
 			nodeIntegration: false,
-			preload: path.join(__dirname, "preload.js")
+			preload: GetCurDir("preload.js")
 		}
 	});
 	
@@ -331,31 +338,7 @@ function handleGamedef(filePath)
 				try
 				{
 					let passedData = JSON.parse(body);
-					let gameId = passedData.id;
-					if (passedData.hasOwnProperty("version"))
-					{
-						let latestVersion = passedData.version;
-						delete passedData["version"];
-						passedData["latestVersion"] = latestVersion;
-						
-						if (libraryStore.has(gameId))
-						{
-							if (libraryStore.has(`${gameId}.Version`))
-							{
-								passedData["installedVersion"] = libraryStore.get(`${gameId}.Version`);
-							}
-						}
-					}
-					
-					if (passedData.hasOwnProperty("screenshots"))
-					{
-						for (let i = 0; i < passedData.screenshots.length; i++)
-						{
-							passedData.screenshots[i] = HandleDebugProxy(passedData.screenshots[i]);
-						}
-					}
-					
-					win.webContents.send("games-list-addition", passedData);
+					SendGame(passedData);
 				}
 				catch(e)
 				{
@@ -375,11 +358,57 @@ function handleGamedef(filePath)
 	request.end();
 }
 
+function SendGame(passedData)
+{
+	let gameId = passedData.id;
+	if (passedData.hasOwnProperty("version"))
+	{
+		if (libraryStore.get(`${gameId}.Version`) == passedData.version)
+		{
+			libraryStore.set(`${gameId}.CachedInfo`, passedData);
+		}
+		
+		let latestVersion = passedData.version;
+		delete passedData["version"];
+		passedData["latestVersion"] = latestVersion;
+		
+		if (libraryStore.has(gameId))
+		{
+			if (libraryStore.has(`${gameId}.Version`))
+			{
+				passedData["installedVersion"] = libraryStore.get(`${gameId}.Version`);
+			}
+		}
+	}
+	
+	let cachedLaunch = libraryStore.get(`${gameId}.CachedInfo.launch`);
+	if (!IsNullOrEmpty(cachedLaunch))
+	{
+		passedData["cachedLaunch"] = cachedLaunch;
+	}
+	
+	if (passedData.hasOwnProperty("screenshots"))
+	{
+		for (let i = 0; i < passedData.screenshots.length; i++)
+		{
+			passedData.screenshots[i] = HandleDebugProxy(passedData.screenshots[i]);
+		}
+	}
+	
+	win.webContents.send("games-list-addition", passedData);
+}
+
+function RemoveFromArray(haystack, needle)
+{
+	haystack.splice(haystack.indexOf(needle), 1);
+}
+
 function handleGamelist(filePath)
 {
 	filePath = HandleDebugProxy(filePath);
 	//console.log(`WE ARE REQUESTING THE FOLLOWING PATH: ${filePath}`);
 	let request = net.request(filePath);
+	queuedGamelists.push(request);
 	request.setHeader("Cache-Control", "no-cache");
 	let body = '';
 	request.on('response', (response) =>
@@ -408,6 +437,12 @@ function handleGamelist(filePath)
 					}
 				}
 			}
+			
+			console.log("Before:");
+			console.log(queuedGamelists);
+			RemoveFromArray(queuedGamelists, request);
+			console.log("After:");
+			console.log(queuedGamelists);
 		});
 		response.on('error', (error) =>
 		{
@@ -421,19 +456,62 @@ function handleGamelist(filePath)
 	request.end();
 }
 
+function SendInstalledGames()
+{
+	let workingKeys = Object.keys(libraryStore.store);
+
+	for (let i = 0; i < workingKeys.length; i++)
+	{
+		if (!IsNullOrEmpty(libraryStore.get(`${[workingKeys[i]]}.Version`)))
+		{
+			let cachedInfo = libraryStore.get(`${[workingKeys[i]]}.CachedInfo`);
+			if (!IsNullOrEmpty(cachedInfo))
+			{
+				SendGame(cachedInfo);
+			}
+		}
+	}
+}
+
 function refreshLibrary()
 {
-	let gamelists = readTextFile("gamelists.txt").split(/[\r\n]+/);
+	let gamelists = "";
+	let pathDefaultGamelist = GetCurDir("gamelists.txt");
+	let pathUserGamelist = GetUserDir("gamelists.txt");
+	
+	if (DirectoryExists(pathUserGamelist))
+	{
+		gamelists = readTextFile(pathUserGamelist);
+	}
+	else if (DirectoryExists(pathDefaultGamelist))
+	{
+		gamelists = readTextFile(pathDefaultGamelist);
+	}
+	else
+	{
+		LogError(`No \`.gamedef\` found. Checked the following paths: \`${GetUserDir("gamelists.txt")}\`, \`${GetCurDir("gamelists.txt")}\``);
+	}
+	gamelists = gamelists.split(/[\r\n]+/);
 	
 	win.webContents.send("games-list-refreshing");
 	
+	SendInstalledGames();
+	
+	let usableGamelists = 0;
 	for (let j = 0; j < gamelists.length; j++)
 	{
 		let gamelist = gamelists[j];
-		if (gamelist != null && gamelist != "")
+		if (!IsNullOrEmpty(gamelist))
 		{
 			handleGamelist(gamelists[j]);
+			usableGamelists++;
 		}
+	}
+	
+	if (usableGamelists == 0)
+	{
+		// TODO: Send all the info on the already-installed games.
+		win.webContents.send("games-list-unavailable");
 	}
 }
 
@@ -442,9 +520,19 @@ function refreshSettings()
 	win.webContents.send("settings-list", settingsStore.store);
 }
 
-function GetBaseDir(filePath)
+function GetCurDir(filePath)
 {
-	return app.getPath('userData') + filePath;
+	return path.join(__dirname, filePath);
+}
+
+function GetUserDir(filePath)
+{
+	return path.join(app.getPath('userData'), filePath);
+}
+
+function DirectoryExists(dir)
+{
+	return fs.existsSync(dir);
 }
 
 ipcMain.on('download-file', function (event, gameId, downloadUrl, version)
@@ -455,22 +543,22 @@ ipcMain.on('download-file', function (event, gameId, downloadUrl, version)
 	libraryStore.delete(`${gameId}.Version`);
 	downloadInfo.set(gameId, {"downloadProgress": 0, "extractionProgress": 0});
 	
-	if (!fs.existsSync(GetBaseDir("/Downloads")))
+	if (!DirectoryExists(GetUserDir("/Downloads")))
 	{
-		fs.mkdirSync(GetBaseDir("/Downloads"));
+		fs.mkdirSync(GetUserDir("/Downloads"));
 	}
 	
-	if (!fs.existsSync(GetBaseDir("/Games")))
+	if (!DirectoryExists(GetUserDir("/Games")))
 	{
-		fs.mkdirSync(GetBaseDir("/Games"));
+		fs.mkdirSync(GetUserDir("/Games"));
 	}
 	
-	if (!fs.existsSync(GetBaseDir(`/Games/${gameId}`)))
+	if (!DirectoryExists(GetUserDir(`/Games/${gameId}`)))
 	{
-		fs.mkdirSync(GetBaseDir(`/Games/${gameId}`));
+		fs.mkdirSync(GetUserDir(`/Games/${gameId}`));
 	}
 	
-	downloadFile(gameId, downloadUrl, GetBaseDir(`/Downloads/${gameId}.ZIP`), function()
+	downloadFile(gameId, downloadUrl, GetUserDir(`/Downloads/${gameId}.ZIP`), function()
 	{
 		//libraryStore.set(`${gameId}.Version`, version);
 		
@@ -481,11 +569,11 @@ ipcMain.on('download-file', function (event, gameId, downloadUrl, version)
 		console.log("Finished downloading the file!");
 		console.log("Start extract.");
 		
-		console.log("Should write to: " + GetBaseDir(`/Games/${gameId}`));
+		console.log("Should write to: " + GetUserDir(`/Games/${gameId}`));
 
 		let lastExtractUpdate = 0;
 
-		let tempDownloadLocation = GetBaseDir(`/Downloads/${gameId}.ZIP`)
+		let tempDownloadLocation = GetUserDir(`/Downloads/${gameId}.ZIP`)
 		let unzipper = new DecompressZip(tempDownloadLocation);
 		unzipper.on('error', function (err)
 		{
@@ -531,7 +619,7 @@ ipcMain.on('download-file', function (event, gameId, downloadUrl, version)
 			//console.log(`Progress: Extracted ${fileIndex + 1}/${fileCount}.`);
 		});
 
-		unzipper.extract({ path: GetBaseDir(`/Games/${gameId}`) });
+		unzipper.extract({ path: GetUserDir(`/Games/${gameId}`) });
 	});
 });
 
@@ -558,19 +646,18 @@ ipcMain.on('play-game', function (event, gameId, command, gameJSON)
 	{
 		if (settingsStore.get("OpenBrowserGamesExternally"))
 		{
-			shell.openExternal(GetBaseDir(`/Games/${gameId}/${command.page}`));
+			shell.openExternal(GetUserDir(`/Games/${gameId}/${command.page}`));
 		}
 		else
 		{
-			let gameRoot = GetBaseDir(`/Games/${gameId}/`);
+			let gameRoot = GetUserDir(`/Games/${gameId}/`);
 			let winFavicon = ICON_PATH;
 			
-			if (fs.existsSync(`${gameRoot}favicon.ico`))
+			if (DirectoryExists(`${gameRoot}favicon.ico`))
 			{
 				winFavicon = `${gameRoot}favicon.ico`;
 			}
 			
-			// TODO: Check if it has a favicon.
 			gameWin = new BrowserWindow({
 				width: 800,
 				height: 600,
@@ -605,7 +692,7 @@ ipcMain.on('play-game', function (event, gameId, command, gameJSON)
 	{
 		execFile(command.cmd, command.args,
 		{
-			"cwd": GetBaseDir(`/Games/${gameId}`)
+			"cwd": GetUserDir(`/Games/${gameId}`)
 		});
 	}
 });
@@ -636,7 +723,7 @@ ipcMain.on('change-setting', function (event, settingName, settingValue)
 ipcMain.on('uninstall-game', function (event, gameId)
 {
 	console.log(`uninstall-game: ${gameId}`);
-	let pathToUninstall = GetBaseDir(`/Games/${gameId}`);
+	let pathToUninstall = GetUserDir(`/Games/${gameId}`);
 	fs.remove(pathToUninstall, function(err)
 	{
 		if (err !== undefined && err !== null && err !== '')

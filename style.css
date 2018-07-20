@@ -136,6 +136,33 @@ button.inprogress
 	           color:var(--colorTabForeSelected);
 }
 
+/* Unavailable */
+
+#librarySidebar.refreshing li,
+#librarySidebar.refreshing li:hover,
+#librarySidebar.na li,
+#librarySidebar.na li:hover
+{
+	text-align:center;
+	font-family:var(--fontEntry);
+	background-color:var(--colorEntryBackInstalled);
+	           color:var(--colorEntryForeInstalled);
+/*	font-weight:lighter;
+	font-family:var(--fontEntry);
+	background-color:var(--colorEntryBackUninstalled);
+	           color:var(--colorEntryForeUninstalled);*/
+}
+
+#librarySidebar.refreshing
+{
+	cursor:wait;
+}
+
+#librarySidebar.na
+{
+	cursor:not-allowed;
+}
+
 /* Installed */
 
 #librarySidebar li

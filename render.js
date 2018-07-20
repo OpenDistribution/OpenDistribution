@@ -101,7 +101,7 @@ function DisplayGameProgress(gameId)
 				};
 			}
 			
-			if (IsNullOrEmpty(selectedGame.launch) || (!IsNullOrEmpty(selectedGame.launch) && selectedGame.launch.length == 0))
+			if (IsNullOrEmpty(selectedGame.cachedLaunch) || (!IsNullOrEmpty(selectedGame.cachedLaunch) && selectedGame.cachedLaunch.length == 0))
 			{
 				gameDownload.innerHTML = "Can't Launch";
 				gameDownload.classList.add('na');
@@ -110,10 +110,10 @@ function DisplayGameProgress(gameId)
 			else
 			{
 				gameDownload.innerHTML = "&#x25B6; Play";
-				//console.log(selectedGame.launch);
-				if (Object.keys(selectedGame.launch).length == 1)
+				//console.log(selectedGame.cachedLaunch);
+				if (Object.keys(selectedGame.cachedLaunch).length == 1)
 				{
-					let command = selectedGame.launch[Object.keys(selectedGame.launch)[0]];
+					let command = selectedGame.cachedLaunch[Object.keys(selectedGame.cachedLaunch)[0]];
 					gameDownload.onclick = function()
 					{
 						ipcRenderer.send("play-game", gameId, command, selectedGame);
@@ -125,11 +125,11 @@ function DisplayGameProgress(gameId)
 					{
 						let modal = document.getElementById('modalLaunchOptions');
 						modal.innerHTML = "";
-						for (i = 0; i < Object.keys(selectedGame.launch).length; i++)
+						for (i = 0; i < Object.keys(selectedGame.cachedLaunch).length; i++)
 						{
-							let command = selectedGame.launch[Object.keys(selectedGame.launch)[i]];
+							let command = selectedGame.cachedLaunch[Object.keys(selectedGame.cachedLaunch)[i]];
 							let launch = document.createElement('button');
-							launch.innerHTML = Object.keys(selectedGame.launch)[i];
+							launch.innerHTML = Object.keys(selectedGame.cachedLaunch)[i];
 							launch.setAttribute("type", "button");
 							launch.onclick = function()
 							{
@@ -269,8 +269,23 @@ ipcRenderer.on('games-list-refreshing', (event, message) =>
 {
 	console.log('games-list-refreshing');
 	let gamesList = document.getElementById('gamesList');
+	let librarySidebar = document.getElementById('librarySidebar');
 	gamesList.innerHTML = "<li><b>Refreshing</b></li>";
-	gamesList.classList.add("refreshing");
+	librarySidebar.classList.add("refreshing");
+	librarySidebar.classList.remove("na");
+});
+
+ipcRenderer.on('games-list-unavailable', (event, message) =>
+{
+	console.log('games-list-unavailable');
+	if (refreshingList.length == 0)
+	{
+		let gamesList = document.getElementById('gamesList');
+		let librarySidebar = document.getElementById('librarySidebar');
+		gamesList.innerHTML = "<li><b>Unavailable</b></li>";
+		librarySidebar.classList.remove("refreshing");
+		librarySidebar.classList.add("na");
+	}
 });
 
 function gamesListRefreshed()
@@ -295,13 +310,14 @@ function gamesListRefreshed()
 ipcRenderer.on('games-list-addition', (event, message) =>
 {
 	console.log(`games-list-addition: ${message}`);
+	let librarySidebar = document.getElementById('librarySidebar');
 	let gamesList = document.getElementById('gamesList');
 	
-	let refreshingGamesList = document.getElementsByClassName('refreshing');
-	for (let i = 0; i < refreshingGamesList.length; i++)
+	if (librarySidebar.classList.contains('refreshing'))
 	{
-		refreshingGamesList[i].innerHTML = "";
-		refreshingGamesList[i].classList.remove("refreshing");
+		gamesList.innerHTML = '';
+		librarySidebar.classList.remove('na');
+		librarySidebar.classList.remove('refreshing');
 	}
 	
 	let gameJSON = message;
