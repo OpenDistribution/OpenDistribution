@@ -19,9 +19,9 @@ let libraryStore = new Store({ name: "library" });
 let settingsStore = new Store({ name: "settings" });
 
 let downloadInfo = new Map();
+let untouchedGameJsons = new Map();
 
 let queuedGamelists = [];
-let sentGames = [];
 
 function setSettingDefault(setting, defaultValue)
 {
@@ -361,6 +361,9 @@ function handleGamedef(filePath)
 function SendGame(passedData)
 {
 	let gameId = passedData.id;
+	
+	untouchedGameJsons[passedData.id] = JSON.parse(JSON.stringify(passedData));
+	
 	if (passedData.hasOwnProperty("version"))
 	{
 		if (libraryStore.get(`${gameId}.Version`) == passedData.version)
@@ -535,11 +538,14 @@ function DirectoryExists(dir)
 	return fs.existsSync(dir);
 }
 
-ipcMain.on('download-file', function (event, gameId, downloadUrl, version)
+ipcMain.on('download-game', function (event, gameId)
 {
+	let gameJSON = untouchedGameJsons[gameId];
+	
+	let downloadUrl = gameJSON.download;
 	downloadUrl = HandleDebugProxy(downloadUrl);
 
-	console.log(`download-file: ${gameId}, ${downloadUrl}`);
+	console.log(`download-file: ${gameId}`);
 	libraryStore.delete(`${gameId}.Version`);
 	downloadInfo.set(gameId, {"downloadProgress": 0, "extractionProgress": 0});
 	
@@ -570,16 +576,20 @@ ipcMain.on('download-file', function (event, gameId, downloadUrl, version)
 		console.log("Start extract.");
 		
 		console.log("Should write to: " + GetUserDir(`/Games/${gameId}`));
-
+		
 		let lastExtractUpdate = 0;
-
+		
 		let tempDownloadLocation = GetUserDir(`/Downloads/${gameId}.ZIP`)
 		let unzipper = new DecompressZip(tempDownloadLocation);
 		unzipper.on('error', function (err)
 		{
 			console.log('Error: ', err);
+			LogError(`Error unzipping file \`${tempDownloadLocation}\`: ${err}`);
+			
+			downloadInfo.delete(gameId);
+			SendProgressReport(gameId);
 		});
-
+		
 		unzipper.on('extract', function (log)
 		{
 			//console.log(`Extraction finished: ${log}`);
@@ -587,20 +597,21 @@ ipcMain.on('download-file', function (event, gameId, downloadUrl, version)
 			{
 				if (err !== undefined && err !== null && err !== '')
 				{
-					console.log(`Error deleting file ${tempDownloadLocation} after extraction: ${err}`);
+					LogError(`Error deleting file \`${tempDownloadLocation}\` after extraction: ${err}`);
 				}
 				else
 				{
-					console.log(`Extracted and deleted ${tempDownloadLocation}.`);
-					
-					libraryStore.set(`${gameId}.Version`, version);
-					
-					downloadInfo.delete(gameId);
-					SendProgressReport(gameId);
+					console.log(`Extracted and deleted \`${tempDownloadLocation}\`.`);
 				}
 			});
+			
+			console.log(gameJSON);
+			libraryStore.set(`${gameId}.Version`, gameJSON.version);
+			
+			downloadInfo.delete(gameId);
+			SendProgressReport(gameId);
 		});
-
+		
 		unzipper.on('progress', function (fileIndex, fileCount)
 		{
 			//libraryStore.set(`${gameId}.Version`, version);
@@ -615,10 +626,9 @@ ipcMain.on('download-file', function (event, gameId, downloadUrl, version)
 				SendProgressReport(gameId);
 			}
 			
-			
 			//console.log(`Progress: Extracted ${fileIndex + 1}/${fileCount}.`);
 		});
-
+		
 		unzipper.extract({ path: GetUserDir(`/Games/${gameId}`) });
 	});
 });
@@ -640,8 +650,10 @@ ipcMain.on('updated-view', function (event, message)
 	settingsStore.set("LastView", message);
 });
 
-ipcMain.on('play-game', function (event, gameId, command, gameJSON)
+ipcMain.on('play-game', function (event, gameId, command)
 {
+	let gameJSON = untouchedGameJsons[gameId];
+	
 	if (!IsNullOrEmpty(command.page))
 	{
 		if (settingsStore.get("OpenBrowserGamesExternally"))
@@ -669,7 +681,7 @@ ipcMain.on('play-game', function (event, gameId, command, gameJSON)
 					nodeIntegration: false,
 					contextIsolation: true,
 					sandbox: true,
-					partition: `persist:${gameJSON.id}`
+					partition: `persist:${gameId}`
 				}
 			});
 			

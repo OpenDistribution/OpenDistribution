@@ -94,13 +94,16 @@ function DisplayGameProgress(gameId)
 			console.log(selectedGame.installedVersion);
 			if (selectedGame.latestVersion != selectedGame.installedVersion)
 			{
-				gameUpdate.style.display = 'block';
+				gameUpdate.style.display = 'inline-block';
 				gameUpdate.onclick = function()
 				{
+					gameUpdate.onclick = function() {};
 					gameUpdate.style.display = 'none';
+					
+					console.log("download-game");
 					gameDownload.classList.add('inprogress');
-					console.log("update-game");
-					ipcRenderer.send("update-game", gameId, selectedGame.download, selectedGame.latestVersion);
+					ipcRenderer.send("download-game", gameId);
+					gameDownload.onclick = function() {};
 				};
 			}
 			
@@ -119,7 +122,7 @@ function DisplayGameProgress(gameId)
 					let command = selectedGame.cachedLaunch[Object.keys(selectedGame.cachedLaunch)[0]];
 					gameDownload.onclick = function()
 					{
-						ipcRenderer.send("play-game", gameId, command, selectedGame);
+						ipcRenderer.send("play-game", gameId, command);
 					};
 				}
 				else
@@ -167,9 +170,9 @@ function DisplayGameProgress(gameId)
 				}
 				gameDownload.onclick = function()
 				{
-					console.log("download-file");
+					console.log("download-game");
 					gameDownload.classList.add('inprogress');
-					ipcRenderer.send("download-file", gameId, selectedGame.download, selectedGame.latestVersion);
+					ipcRenderer.send("download-game", gameId);
 					gameDownload.onclick = function() {};
 				};
 			}

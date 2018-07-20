@@ -469,6 +469,11 @@ h2
 	height:300px;
 }
 
+#gameUpdateButton
+{
+	display:none;
+}
+
 /* Large */
 @media (min-width: 600px)
 {
