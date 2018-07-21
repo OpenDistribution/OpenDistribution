@@ -417,18 +417,30 @@ ipcRenderer.on('update-about', (event, message) =>
 		let author = authorsList[i];
 		if (!IsNullOrEmpty(author.url))
 		{
-			authors += `<li><a href="${author.url}" target="_blank">${authorsList[i].name}</a></li>`;
+			authors += `<li><a href="${author.url}" target="_blank">${author.name}</a></li>`;
 		}
 		else
 		{
-			authors += `<li>${authorsList[i].name}</li>`;
+			authors += `<li>${author.name}</li>`;
 		}
 	}
 	
-	tabBodyAbout.innerHTML = `<h1>${message.name}</h1>
+	let npmmodules = "";
+	for(let i = 0; i < using.length; i++)
+	{
+		let dependency = using[i];
+		npmmodules += `<li>
+			<a href="${dependency.homepage}" target="_blank">${dependency.name}</a> ${dependency.version} (${license.parse(dependency.license)})
+			<ul>
+				<li>${dependency.description}</li>
+			</ul>
+		</li>`;
+	}
+	
+	tabBodyAbout.innerHTML = `<h1>${message.name} ${message.version}</h1>
 	<p>
 		${message.description}<br/>
-		License: ${message.license}
+		License: ${license.parse(message.license)}
 	</p>
 	
 	<h2>Developers</h2>
@@ -438,10 +450,7 @@ ipcRenderer.on('update-about', (event, message) =>
 	
 	<h2>Using</h2>
 	<ul>
-		<li>node ${processVersions.node}</li>
-		<li>Chromium ${processVersions.chrome}</li>
-		<li>Electron ${processVersions.electron}</li>
-		<li>Siema 1.5.1</li>
+		${npmmodules}
 	</ul>
 	
 	<h2>Contribute</h2>
