@@ -632,3 +632,15 @@ function SendTestErrorMessages()
 {
 	ipcRenderer.send("request-error-message-test");
 }
+
+function OpenGameDirectory(gameId)
+{
+	if (IsNullOrEmpty(gameId))
+	{
+		gameId = selectedGameId;
+	}
+	
+	console.log(`open-game-directory: ${gameId}`);
+	ipcRenderer.send("open-game-directory", gameId);
+	CloseAllModals();
+}

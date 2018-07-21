@@ -1,13 +1,14 @@
 const {app, net, shell, BrowserWindow, ipcMain, Tray, Menu} = require('electron');
 const execFile = require('child_process').execFile;
 const path = require('path');
-let fs = require('fs-extra');
-let http = require('http');
-let request = require('request');
-let progress = require('request-progress');
-let packageJson = require('./package.json');
-let DecompressZip = require('decompress-zip');
-let Store = require('electron-store');
+const os = require('os');
+const fs = require('fs-extra');
+const http = require('http');
+const request = require('request');
+const progress = require('request-progress');
+const packageJson = require('./package.json');
+const DecompressZip = require('decompress-zip');
+const Store = require('electron-store');
 
 let ICON_PATH = './icon.png';
 
@@ -19,7 +20,7 @@ let libraryStore = new Store({ name: "library" });
 let settingsStore = new Store({ name: "settings" });
 
 let downloadInfo = new Map();
-let untouchedGameJsons = new Map();
+let platformCorrectedGameJsons = new Map();
 
 let queuedGamelists = [];
 
@@ -33,11 +34,6 @@ function setSettingDefault(setting, defaultValue)
 
 function loadSettings()
 {
-/*	console.log("libraryStore:");
-	console.log(libraryStore.store);
-	console.log("settingsStore:");
-	console.log(settingsStore.store);*/
-	
 	setSettingDefault("StartMaximized", true);
 	setSettingDefault("CloseToTray", true);
 	setSettingDefault("AutoUpdateGames", true);
@@ -352,13 +348,18 @@ function handleGamedef(filePath)
 	request.end();
 }
 
+function DeepCopy(srcData)
+{
+	return JSON.parse(JSON.stringify(srcData));
+}
+
 function SendGame(srcData, cached)
 {
 	let gameId = srcData.id;
 	
-	untouchedGameJsons[gameId] = srcData;
+	platformCorrectedGameJsons[gameId] = PlatformCorrect(srcData);
 	
-	let passedData = JSON.parse(JSON.stringify(srcData)); // Deep Copy
+	let passedData = DeepCopy(srcData); // Deep Copy
 	
 	if (passedData.hasOwnProperty("version"))
 	{
@@ -542,9 +543,15 @@ function DirectoryExists(dir)
 
 function DownloadGame(gameId)
 {
-	let gameJSON = untouchedGameJsons[gameId];
+	let gameJSON = platformCorrectedGameJsons[gameId];
 	
-	let downloadUrl = gameJSON.download;
+	let downloadUrl = DeepCopy(gameJSON.download);
+	if (IsNullOrEmpty(downloadUrl))
+	{
+		LogError(`Attempted to download game ${gameId} without any download section.`);
+		return;
+	}
+	
 	downloadUrl = HandleDebugProxy(downloadUrl);
 	
 	console.log(`download-file: ${gameId}`);
@@ -662,7 +669,7 @@ ipcMain.on('updated-view', function (event, message)
 
 ipcMain.on('play-game', function (event, gameId, command)
 {
-	let gameJSON = untouchedGameJsons[gameId];
+	let gameJSON = platformCorrectedGameJsons[gameId];
 	
 	if (!IsNullOrEmpty(command.page))
 	{
@@ -756,6 +763,11 @@ ipcMain.on('uninstall-game', function (event, gameId)
 	});
 });
 
+ipcMain.on('open-game-directory', function (event, gameId)
+{
+	shell.openItem(GetUserDir(`/Games/${gameId}/`))
+});
+
 function SendProgressReport(gameId)
 {
 	let dNfo = downloadInfo.get(gameId);
@@ -785,4 +797,48 @@ ipcMain.on('request-error-message-test', function (event)
 function IsNullOrEmpty(str)
 {
 	return str === undefined || str === null || str === "";
+}
+
+function PlatformCorrect(srcData)
+{
+	let plat = os.platform();
+	let arch = os.arch();
+	if (plat == 'win32')
+	{
+		plat = 'windows';
+	}
+	
+	if (IsNullOrEmpty(srcData.platforms))
+	{
+		srcData.platforms = ['all'];
+	}
+	else
+	{
+		let currentPlatform = `${plat}-${arch}`;
+		
+		if (IsNullOrEmpty(srcData.platforms['windows-x64']) && !IsNullOrEmpty(srcData.platforms['windows-x32']))
+		{
+			plat = 'windows-x32';
+		}
+		
+		if (!IsNullOrEmpty(srcData.platforms[currentPlatform]))
+		{
+			let platformData = srcData.platforms[currentPlatform];
+			let platformDataKeys = Object.keys(platformData);
+			
+			delete srcData.platforms;
+			
+			for(let i = 0; i < platformDataKeys.length; i++)
+			{
+				srcData[platformDataKeys[i]] = platformData[platformDataKeys[i]];
+			}
+		}
+		else
+		{
+			delete srcData.platforms;
+		}
+		console.log(srcData);
+	}
+	
+	return srcData;
 }
