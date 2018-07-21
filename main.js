@@ -286,15 +286,9 @@ app.on('window-all-closed', () =>
 	app.quit();
 });
 
-function getFile(filePath)
-{
-	return fs.readFileSync(filePath, 'utf-8');
-}
-
 function readTextFile(filePath)
 {
-	let data = getFile(filePath);
-	return data;
+	return fs.readFileSync(filePath, 'utf-8');
 }
 
 function HandleDebugProxy(filePath)
