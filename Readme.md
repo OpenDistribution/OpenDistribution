@@ -3,6 +3,8 @@ OpenDistribution
 
 Capstone Project for Group 1
 
+[OpenDistribution running on Ubuntu](OpenDistributionOnUbuntu.png)
+
 Running
 -------
 
