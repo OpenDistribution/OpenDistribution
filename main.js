@@ -806,6 +806,11 @@ function PlatformCorrect(srcData)
 		plat = 'windows';
 	}
 	
+	if (arch = 'ia32')
+	{
+		arch = 'x86';
+	}
+	
 	if (IsNullOrEmpty(srcData.platforms))
 	{
 		srcData.platforms = ['all'];
@@ -814,9 +819,9 @@ function PlatformCorrect(srcData)
 	{
 		let currentPlatform = `${plat}-${arch}`;
 		
-		if (IsNullOrEmpty(srcData.platforms['windows-x64']) && !IsNullOrEmpty(srcData.platforms['windows-x32']))
+		if (plat == 'windows-x64' && IsNullOrEmpty(srcData.platforms['windows-x64']) && !IsNullOrEmpty(srcData.platforms['windows-x86']))
 		{
-			plat = 'windows-x32';
+			plat = 'windows-x86';
 		}
 		
 		if (!IsNullOrEmpty(srcData.platforms[currentPlatform]))
