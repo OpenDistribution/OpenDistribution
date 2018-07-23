@@ -1,6 +1,6 @@
 {
 	"name": "OpenDistribution",
-	"description": "Capstone Project for Group 1",
+	"description": "A cross-platform, open-source digital distribution client.",
 	"author": {
 		"name": "Walter Barrett",
 		"email": "walter.barrett@mga.edu",
@@ -29,7 +29,7 @@
 	},
 	"repository": "github:OpenDistribution/OpenDistribution",
 	"license": "BSD-3-Clause",
-	"version": "0.2.0",
+	"version": "1.0.0",
 	"devDependencies": {
 		"electron": "^2.0.2"
 	},
