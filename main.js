@@ -10,8 +10,6 @@ const packageJson = require('./package.json');
 const DecompressZip = require('decompress-zip');
 const Store = require('electron-store');
 
-let ICON_PATH = './icon.png';
-
 let win = null; // This needs to be global, or it'll be garbage collected.
 let gameWin = null;
 let trayIcon = null;
@@ -76,7 +74,7 @@ function createWindow()
 		minHeight: 500,
 		minWidth: 500,
 		title: packageJson.name,
-		icon:ICON_PATH,
+		icon: GetCurDir('icon.png'),
 		webPreferences: {
 			nodeIntegration: false,
 			preload: GetCurDir("preload.js")
@@ -213,7 +211,7 @@ function setupMainMenu()
 
 function createTrayIcon()
 {
-	trayIcon = new Tray(ICON_PATH);
+	trayIcon = new Tray(GetCurDir('icon.png'));
 	let trayMenu = Menu.buildFromTemplate([
 		{
 			label: 'Show',
@@ -680,7 +678,7 @@ ipcMain.on('play-game', function (event, gameId, command)
 		else
 		{
 			let gameRoot = GetUserDir(`/Games/${gameId}/`);
-			let winFavicon = ICON_PATH;
+			let winFavicon = GetCurDir('icon.png');
 			
 			if (DirectoryExists(`${gameRoot}favicon.ico`))
 			{

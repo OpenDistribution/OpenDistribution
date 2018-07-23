@@ -14,23 +14,37 @@ function GetUsings()
 	let dependencies = Object.keys(packageJson.dependencies).concat(Object.keys(packageJson.devDependencies));
 	for(let i = 0; i < dependencies.length; i++)
 	{
-		let dependency = JSON.parse(fs.readFileSync(path.join(__dirname, `node_modules/${dependencies[i]}/package.json`), 'utf-8'));
-		//console.log(dependency);
-		let dependencyHomepage = dependency.homepage;
-		if (IsNullOrEmpty(dependencyHomepage))
+		if (dependencies[i] == 'electron') // Electron's package.json isn't available in packaged versions.
 		{
-			dependencyHomepage = `https://www.npmjs.com/package/${dependencies[i]}`;
+			usings.push({
+				"id": "electron",
+				"name": "Electron",
+				"version": process.versions.electron,
+				"license": "MIT",
+				"homepage": "https://github.com/electron/electron#readme",
+				"description": "Build cross platform desktop apps with JavaScript, HTML, and CSS."
+			});
 		}
-		
-		let using = {
-			"id": dependencies[i],
-			"name": dependency.name,
-			"version": dependency.version,
-			"license": dependency.license,
-			"homepage": dependencyHomepage,
-			"description": dependency.description
-		};
-		usings.push(using);
+		else
+		{
+			let dependency = JSON.parse(fs.readFileSync(path.join(__dirname, `node_modules/${dependencies[i]}/package.json`), 'utf-8'));
+			//console.log(dependency);
+			let dependencyHomepage = dependency.homepage;
+			if (IsNullOrEmpty(dependencyHomepage))
+			{
+				dependencyHomepage = `https://www.npmjs.com/package/${dependencies[i]}`;
+			}
+			
+			let using = {
+				"id": dependencies[i],
+				"name": dependency.name,
+				"version": dependency.version,
+				"license": dependency.license,
+				"homepage": dependencyHomepage,
+				"description": dependency.description
+			};
+			usings.push(using);
+		}
 	}
 	
 	usings.push({
